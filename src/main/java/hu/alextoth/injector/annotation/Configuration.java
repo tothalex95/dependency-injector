@@ -1,7 +1,7 @@
 /**
  * 
  */
-package hu.alextoth.injector.core.annotation;
+package hu.alextoth.injector.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -16,6 +16,6 @@ import java.lang.annotation.Target;
  * @author Alex Toth
  *
  */
-public @interface Component {
+public @interface Configuration {
 
 }
