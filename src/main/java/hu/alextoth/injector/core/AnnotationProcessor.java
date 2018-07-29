@@ -30,17 +30,17 @@ public class AnnotationProcessor {
 	private final Reflections reflections;
 	private final DependencyHandler dependencyHandler;
 
-	public AnnotationProcessor(String basePackage) {
+	public AnnotationProcessor(DependencyHandler dependencyHandler, String basePackage) {
 		reflections = new Reflections(
 				new ConfigurationBuilder()
 						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
 								new FieldAnnotationsScanner(), new MethodAnnotationsScanner())
 						.setUrls(ClasspathHelper.forPackage(basePackage)));
-		dependencyHandler = new DependencyHandler();
+		this.dependencyHandler = dependencyHandler;
 	}
 
-	public AnnotationProcessor() {
-		this("");
+	public AnnotationProcessor(DependencyHandler dependencyHandler) {
+		this(dependencyHandler, "");
 	}
 
 	/**

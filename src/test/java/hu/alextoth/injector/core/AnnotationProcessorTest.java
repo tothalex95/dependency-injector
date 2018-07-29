@@ -20,7 +20,7 @@ public class AnnotationProcessorTest {
 
 	@Test
 	void testProcessAnnotations() {
-		AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+		AnnotationProcessor annotationProcessor = new AnnotationProcessor(new DependencyHandler());
 		annotationProcessor.processAnnotations();
 
 		assertNotNull(demoInjectableTwo);
