@@ -13,7 +13,7 @@ import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
 
 @Component
-class DependencyInjectorTest {
+public class DependencyInjectorTest {
 
 	@Inject
 	private static DemoInjectableOne demoInjectableOne;

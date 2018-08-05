@@ -2,8 +2,11 @@ package hu.alextoth.injector.core;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
 
@@ -53,7 +56,6 @@ public class DependencyHandler {
 
 		Constructor<T> constructor = getSuitableConstructor(clazz);
 
-		constructor.setAccessible(true);
 		Class<?>[] parameterClasses = constructor.getParameterTypes();
 		Object[] parameterInstances = new Object[parameterClasses.length];
 		for (int i = 0; i < parameterClasses.length; i++) {
@@ -94,16 +96,28 @@ public class DependencyHandler {
 	@SuppressWarnings("unchecked")
 	private <T> Constructor<T> getSuitableConstructor(Class<T> clazz) {
 		Constructor<T> constructor = null;
-		try {
-			constructor = clazz.getConstructor();
-		} catch (NoSuchMethodException | SecurityException e) {
-			Constructor<T>[] declaredConstuctors = (Constructor<T>[]) clazz.getDeclaredConstructors();
-			if (declaredConstuctors.length == 0) {
-				// TODO: handle interfaces
-			} else {
-				constructor = declaredConstuctors[0];
+
+		if (Modifier.isInterface(clazz.getModifiers()) || Modifier.isAbstract(clazz.getModifiers())) {
+			List<Class<? extends T>> suitableClasses = reflections.getSubTypesOf(clazz).stream()
+					.filter(c -> !Modifier.isInterface(c.getModifiers()) && !Modifier.isAbstract(c.getModifiers()))
+					.collect(Collectors.toList());
+
+			int numberOfSuitableClasses = suitableClasses.size();
+			if (numberOfSuitableClasses == 0) {
+				throw new DependencyCreationException(
+						String.format("Cannot find suitable implementation for %s", clazz));
 			}
+			if (numberOfSuitableClasses > 1) {
+				throw new DependencyCreationException(
+						String.format("Found too many suitable implementations for %s", clazz));
+			}
+
+			constructor = (Constructor<T>) getSuitableConstructor(suitableClasses.get(0));
+		} else {
+			Constructor<T>[] declaredConstuctors = (Constructor<T>[]) clazz.getDeclaredConstructors();
+			constructor = declaredConstuctors[0];
 		}
+
 		return constructor;
 	}
 

@@ -27,10 +27,10 @@ public class AnnotationProcessorTest {
 
 	private static DemoInjectableThree demoInjectableThree;
 
-//	@Inject
+	@Inject
 	private static DemoInjectableFour demoInjectableFour;
 
-//	@Inject
+	@Inject
 	private static DemoInjectableFive demoInjectableFive;
 
 	@Test
@@ -46,8 +46,8 @@ public class AnnotationProcessorTest {
 
 		assertNotNull(demoInjectableTwo);
 		assertNotNull(demoInjectableThree);
-//		assertNotNull(demoInjectableFour);
-//		assertNotNull(demoInjectableFive);
+		assertNotNull(demoInjectableFour);
+		assertNotNull(demoInjectableFive);
 
 		assertNotNull(demoInjectableTwo.getDemoInjectableOne());
 		assertEquals(demoInjectableTwo.getDemoInjectableOne().getDemoInteger(), Integer.valueOf(2018));

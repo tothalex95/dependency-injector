@@ -1,8 +1,8 @@
 package hu.alextoth.injector.demo;
 
-public abstract class DemoInjectableFive {
+public class DemoInjectableEight {
 
-	public DemoInjectableFive() {
+	private DemoInjectableEight() {
 		// TODO Auto-generated constructor stub
 	}
 
