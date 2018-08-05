@@ -1,5 +1,13 @@
 package hu.alextoth.injector;
 
+import org.reflections.Reflections;
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
@@ -17,9 +25,14 @@ public class DependencyInjector {
 	private final AnnotationProcessor annotationProcessor;
 	private final DependencyHandler dependencyHandler;
 
-	public DependencyInjector() {
-		dependencyHandler = new DependencyHandler();
-		annotationProcessor = new AnnotationProcessor(dependencyHandler);
+	public DependencyInjector(String basePackage) {
+		Reflections reflections = new Reflections(
+				new ConfigurationBuilder()
+						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
+								new FieldAnnotationsScanner(), new MethodAnnotationsScanner())
+						.setUrls(ClasspathHelper.forPackage(basePackage)));
+		dependencyHandler = new DependencyHandler(reflections);
+		annotationProcessor = new AnnotationProcessor(reflections, dependencyHandler);
 	}
 
 	/**

@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.reflections.Reflections;
+
 import hu.alextoth.injector.exception.DependencyCreationException;
 
 /**
@@ -14,9 +16,11 @@ import hu.alextoth.injector.exception.DependencyCreationException;
  */
 public class DependencyHandler {
 
+	private final Reflections reflections;
 	private final Map<Class<?>, Object> dependencies;
 
-	public DependencyHandler() {
+	public DependencyHandler(Reflections reflections) {
+		this.reflections = reflections;
 		dependencies = new HashMap<>();
 	}
 
@@ -44,16 +48,10 @@ public class DependencyHandler {
 	 * @param clazz Class to be instantiated.
 	 * @return An instance of the given class.
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T createInstanceOf(Class<T> clazz) {
 		T instance = null;
 
-		Constructor<T> constructor = null;
-		try {
-			constructor = clazz.getConstructor();
-		} catch (NoSuchMethodException | SecurityException e) {
-			constructor = (Constructor<T>) clazz.getDeclaredConstructors()[0];
-		}
+		Constructor<T> constructor = getSuitableConstructor(clazz);
 
 		constructor.setAccessible(true);
 		Class<?>[] parameterClasses = constructor.getParameterTypes();
@@ -81,6 +79,32 @@ public class DependencyHandler {
 	 */
 	public void registerInstanceOf(Class<?> clazz, Object instance) {
 		dependencies.put(clazz, instance);
+	}
+	
+	/**
+	 * Finds a suitable, instantiable class for the given class and returns its
+	 * constructor.<br>
+	 * If the given class itself is instantiable, returns its constructor. In other
+	 * cases (interface or abstract class) looks for a suitable class and returns an
+	 * appropriate constructor.
+	 * 
+	 * @param clazz Class for which an appropriate constructor needs to be returned.
+	 * @return An appropriate constructor for the given class.
+	 */
+	@SuppressWarnings("unchecked")
+	private <T> Constructor<T> getSuitableConstructor(Class<T> clazz) {
+		Constructor<T> constructor = null;
+		try {
+			constructor = clazz.getConstructor();
+		} catch (NoSuchMethodException | SecurityException e) {
+			Constructor<T>[] declaredConstuctors = (Constructor<T>[]) clazz.getDeclaredConstructors();
+			if (declaredConstuctors.length == 0) {
+				// TODO: handle interfaces
+			} else {
+				constructor = declaredConstuctors[0];
+			}
+		}
+		return constructor;
 	}
 
 }

@@ -28,7 +28,7 @@ class DependencyInjectorTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		dependencyInjector = new DependencyInjector();
+		dependencyInjector = new DependencyInjector("hu.alextoth.injector");
 		dependencyInjector.injectDependencies();
 	}
 

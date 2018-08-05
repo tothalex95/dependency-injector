@@ -5,6 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.reflections.Reflections;
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoInjectableThree;
@@ -16,7 +23,12 @@ class DependencyHandlerTest {
 
 	@BeforeEach
 	void setUp() {
-		dependencyHandler = new DependencyHandler();
+		Reflections reflections = new Reflections(
+				new ConfigurationBuilder()
+						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
+								new FieldAnnotationsScanner(), new MethodAnnotationsScanner())
+						.setUrls(ClasspathHelper.forPackage("hu.alextoth.injector")));
+		dependencyHandler = new DependencyHandler(reflections);
 	}
 
 	@Test

@@ -6,12 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.reflections.Reflections;
-import org.reflections.scanners.FieldAnnotationsScanner;
-import org.reflections.scanners.MethodAnnotationsScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
@@ -30,17 +24,9 @@ public class AnnotationProcessor {
 	private final Reflections reflections;
 	private final DependencyHandler dependencyHandler;
 
-	public AnnotationProcessor(DependencyHandler dependencyHandler, String basePackage) {
-		reflections = new Reflections(
-				new ConfigurationBuilder()
-						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
-								new FieldAnnotationsScanner(), new MethodAnnotationsScanner())
-						.setUrls(ClasspathHelper.forPackage(basePackage)));
+	public AnnotationProcessor(Reflections reflections, DependencyHandler dependencyHandler) {
+		this.reflections = reflections;
 		this.dependencyHandler = dependencyHandler;
-	}
-
-	public AnnotationProcessor(DependencyHandler dependencyHandler) {
-		this(dependencyHandler, "");
 	}
 
 	/**
