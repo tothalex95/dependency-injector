@@ -8,9 +8,6 @@ public class DemoInjectableThree {
 
 	private DemoInjectableTwo demoInjectableTwo;
 
-	public DemoInjectableThree() {
-	}
-
 	public DemoInjectableTwo getDemoInjectableTwo() {
 		return demoInjectableTwo;
 	}

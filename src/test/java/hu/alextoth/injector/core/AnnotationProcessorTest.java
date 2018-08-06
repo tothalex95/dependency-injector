@@ -35,7 +35,7 @@ public class AnnotationProcessorTest {
 	private static DemoInjectableFive demoInjectableFive;
 
 	@Test
-	void testProcessAnnotations() {
+	public void testProcessAnnotations() {
 		Reflections reflections = new Reflections(
 				new ConfigurationBuilder()
 						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),

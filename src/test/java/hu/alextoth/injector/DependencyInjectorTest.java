@@ -27,13 +27,13 @@ public class DependencyInjectorTest {
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
-	void setUp() throws Exception {
+	public void setUp() throws Exception {
 		dependencyInjector = new DependencyInjector("hu.alextoth.injector");
 		dependencyInjector.injectDependencies();
 	}
 
 	@Test
-	void testInjectDependencies() {
+	public void testInjectDependencies() {
 		assertNotNull(demoInjectableOne);
 		assertNotNull(demoInjectableTwo);
 		assertNotNull(demoInjectableThree);
@@ -46,7 +46,7 @@ public class DependencyInjectorTest {
 	}
 
 	@Test
-	void testGetInstanceOf() {
+	public void testGetInstanceOf() {
 		assertNotNull(dependencyInjector.getInstanceOf(Object.class));
 		assertEquals(demoInjectableOne, dependencyInjector.getInstanceOf(DemoInjectableOne.class));
 	}

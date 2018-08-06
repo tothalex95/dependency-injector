@@ -24,12 +24,12 @@ import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
 import hu.alextoth.injector.exception.DependencyCreationException;
 
-class DependencyHandlerTest {
+public class DependencyHandlerTest {
 
 	private DependencyHandler dependencyHandler;
 
 	@BeforeEach
-	void setUp() {
+	public void setUp() {
 		Reflections reflections = new Reflections(
 				new ConfigurationBuilder()
 						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
@@ -39,21 +39,21 @@ class DependencyHandlerTest {
 	}
 
 	@Test
-	void testGetInstanceOf() {
+	public void testGetInstanceOf() {
 		DemoInjectableThree demoInjectableThree = dependencyHandler.getInstanceOf(DemoInjectableThree.class);
 
 		assertNotNull(demoInjectableThree);
 	}
 
 	@Test
-	void testCreateInstanceOfWithDefaultConstructor() {
+	public void testCreateInstanceOfWithDefaultConstructor() {
 		DemoInjectableThree demoInjectableThree = dependencyHandler.createInstanceOf(DemoInjectableThree.class);
 
 		assertNotNull(demoInjectableThree);
 	}
 
 	@Test
-	void testCreateInstanceOfWithParameterizedConstructor() {
+	public void testCreateInstanceOfWithParameterizedConstructor() {
 		DemoInjectableOne demoInjectableOne = new DemoInjectableOne(1995, "Alex");
 
 		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne);
@@ -64,39 +64,39 @@ class DependencyHandlerTest {
 	}
 
 	@Test
-	void testCreateInstanceOfWithNonPublicConstructor() {
+	public void testCreateInstanceOfWithNonPublicConstructor() {
 		assertThrows(DependencyCreationException.class,
 				() -> dependencyHandler.createInstanceOf(DemoInjectableEight.class));
 	}
 
 	@Test
-	void testCreateInstanceOfWithInterface() {
+	public void testCreateInstanceOfWithInterface() {
 		DemoInjectableFour demoInjectableFour = dependencyHandler.createInstanceOf(DemoInjectableFour.class);
 
 		assertNotNull(demoInjectableFour);
 	}
 
 	@Test
-	void testCreateInstanceOfWithAbstractClass() {
+	public void testCreateInstanceOfWithAbstractClass() {
 		DemoInjectableFive demoInjectableFive = dependencyHandler.createInstanceOf(DemoInjectableFive.class);
 
 		assertNotNull(demoInjectableFive);
 	}
 
 	@Test
-	void testCreateInstanceOfWithInterfaceWithoutSuitableImplementation() {
+	public void testCreateInstanceOfWithInterfaceWithoutSuitableImplementation() {
 		assertThrows(DependencyCreationException.class,
 				() -> dependencyHandler.createInstanceOf(DemoInjectableSix.class));
 	}
 
 	@Test
-	void testCreateInstanceOfWithInterfaceWithTooManySuitableImplementation() {
+	public void testCreateInstanceOfWithInterfaceWithTooManySuitableImplementation() {
 		assertThrows(DependencyCreationException.class,
 				() -> dependencyHandler.createInstanceOf(DemoInjectableSeven.class));
 	}
 
 	@Test
-	void testRegisterInstanceOf() {
+	public void testRegisterInstanceOf() {
 		DemoInjectableOne demoInjectableOne = new DemoInjectableOne(1995, "Alex");
 
 		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne);
