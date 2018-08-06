@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Inject;
+import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
 
-@Component
+@DemoAnnotation
 public class DependencyInjectorTest {
 
 	@Inject

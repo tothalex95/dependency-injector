@@ -1,12 +1,9 @@
 package hu.alextoth.injector.demo;
 
-import hu.alextoth.injector.annotation.Configuration;
-import hu.alextoth.injector.annotation.Injectable;
-
-@Configuration
+@DemoAnnotation
 public class ConfigClass {
 
-	@Injectable
+	@DemoAnnotation
 	public DemoInjectableOne getConstructorLevelInjection() {
 		return new DemoInjectableOne(2018, "Alex Toth");
 	}

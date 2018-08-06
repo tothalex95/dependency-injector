@@ -1,14 +1,13 @@
 package hu.alextoth.injector.demo;
 
 import hu.alextoth.injector.annotation.Component;
-import hu.alextoth.injector.annotation.Inject;
 
 @Component
 public class DemoInjectableTwo {
 
 	private DemoInjectableOne demoInjectableOne;
 
-	@Inject
+	@DemoAnnotation
 	public DemoInjectableTwo(DemoInjectableOne demoInjectableOne) {
 		this.demoInjectableOne = demoInjectableOne;
 	}

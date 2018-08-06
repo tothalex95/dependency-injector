@@ -1,11 +1,18 @@
 package hu.alextoth.injector.core;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
+
+import com.google.common.collect.Sets;
 
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
@@ -15,27 +22,66 @@ import hu.alextoth.injector.exception.AnnotationProcessingException;
 
 /**
  * Class for processing {@link Configuration}, {@link Injectable},
- * {@link Component} and {@link Inject} annotations.
+ * {@link Component} and {@link Inject} annotations and their alternatives.
  * 
  * @author Alex Toth
  */
 public class AnnotationProcessor {
 
+	private final Map<Class<? extends Annotation>, Set<Class<?>>> annotations;
+
 	private final Reflections reflections;
 	private final DependencyHandler dependencyHandler;
 
 	public AnnotationProcessor(Reflections reflections, DependencyHandler dependencyHandler) {
+		this.annotations = new HashMap<>(4);
+
 		this.reflections = reflections;
 		this.dependencyHandler = dependencyHandler;
 	}
 
 	/**
 	 * Method for starting the processing of {@link Configuration},
-	 * {@link Injectable}, {@link Component} and {@link Inject} annotations.
+	 * {@link Injectable}, {@link Component} and {@link Inject} annotations and
+	 * their alternatives.
 	 */
 	public void processAnnotations() {
+		registerAnnotationsToCheck();
 		processConfigurationsAndInjectables();
 		processComponentsAndInjections();
+	}
+
+	/**
+	 * Registers annotations that need to be checked by the annotation processor.
+	 * Basically, it looks up annotations annotated with {@link Configuration},
+	 * {@link Injectable}, {@link Component} or {@link Inject}.
+	 */
+	private void registerAnnotationsToCheck() {
+		annotations.clear();
+
+		Set<Class<?>> configurationAnnotations = Sets.newHashSet(Configuration.class);
+		configurationAnnotations.addAll(reflections.getTypesAnnotatedWith(Configuration.class).stream()
+				.filter(clazz -> clazz.isAnnotation())
+				.collect(Collectors.toSet()));
+		annotations.put(Configuration.class, configurationAnnotations);
+
+		Set<Class<?>> injectableAnnotations = Sets.newHashSet(Injectable.class);
+		injectableAnnotations.addAll(reflections.getTypesAnnotatedWith(Injectable.class).stream()
+				.filter(clazz -> clazz.isAnnotation())
+				.collect(Collectors.toSet()));
+		annotations.put(Injectable.class, injectableAnnotations);
+
+		Set<Class<?>> componentAnnotations = Sets.newHashSet(Component.class);
+		componentAnnotations.addAll(reflections.getTypesAnnotatedWith(Component.class).stream()
+				.filter(clazz -> clazz.isAnnotation())
+				.collect(Collectors.toSet()));
+		annotations.put(Component.class, componentAnnotations);
+
+		Set<Class<?>> injectAnnotations = Sets.newHashSet(Inject.class);
+		injectAnnotations.addAll(reflections.getTypesAnnotatedWith(Inject.class).stream()
+				.filter(clazz -> clazz.isAnnotation())
+				.collect(Collectors.toSet()));
+		annotations.put(Inject.class, injectAnnotations);
 	}
 
 	/**
@@ -47,9 +93,12 @@ public class AnnotationProcessor {
 	 * any purpose.
 	 */
 	private void processConfigurationsAndInjectables() {
-		for (Method method : reflections.getMethodsAnnotatedWith(Injectable.class)) {
+		Set<Method> injectables = getInjectables();
+		Set<Class<?>> configurations = getConfigurations();
+
+		for (Method method : injectables) {
 			Class<?> configurationClass = method.getDeclaringClass();
-			if (!configurationClass.isAnnotationPresent(Configuration.class)) {
+			if (!configurations.contains(configurationClass)) {
 				continue;
 			}
 
@@ -85,10 +134,14 @@ public class AnnotationProcessor {
 	 * Actually, {@link DependencyHandler} does the same in some cases, but this
 	 * method forces the use of the annotated constructor.
 	 */
+	@SuppressWarnings("rawtypes")
 	private void processConstructorLevelInjections() {
-		for (Constructor<?> constructor : reflections.getConstructorsAnnotatedWith(Inject.class)) {
+		Set<Constructor> constructorLevelInjections = getConstructorLevelInjections();
+		Set<Class<?>> components = getComponents();
+
+		for (Constructor<?> constructor : constructorLevelInjections) {
 			Class<?> componentClass = constructor.getDeclaringClass();
-			if (!componentClass.isAnnotationPresent(Component.class)) {
+			if (!components.contains(componentClass)) {
 				continue;
 			}
 
@@ -115,9 +168,12 @@ public class AnnotationProcessor {
 	 * instantiates an object of the field's type and sets it.
 	 */
 	private void processFieldLevelInjections() {
-		for (Field field : reflections.getFieldsAnnotatedWith(Inject.class)) {
+		Set<Field> fieldLevelInjections = getFieldLevelInjections();
+		Set<Class<?>> components = getComponents();
+
+		for (Field field : fieldLevelInjections) {
 			Class<?> componentClass = field.getDeclaringClass();
-			if (!componentClass.isAnnotationPresent(Component.class)) {
+			if (!components.contains(componentClass)) {
 				continue;
 			}
 
@@ -140,9 +196,12 @@ public class AnnotationProcessor {
 	 * methods with the given parameters.
 	 */
 	private void processMethodLevelInjections() {
-		for (Method method : reflections.getMethodsAnnotatedWith(Inject.class)) {
+		Set<Method> methodLevelInjections = getMethodLevelInjections();
+		Set<Class<?>> components = getComponents();
+
+		for (Method method : methodLevelInjections) {
 			Class<?> componentClass = method.getDeclaringClass();
-			if (!componentClass.isAnnotationPresent(Component.class)) {
+			if (!components.contains(componentClass)) {
 				continue;
 			}
 
@@ -161,6 +220,108 @@ public class AnnotationProcessor {
 						e);
 			}
 		}
+	}
+
+	/**
+	 * Returns a set of methods annotated with {@link Injectable} or its
+	 * alternatives.
+	 * 
+	 * @return A set of methods annotated with {@link Injectable} or its
+	 *         alternatives.
+	 */
+	@SuppressWarnings("unchecked")
+	private Set<Method> getInjectables() {
+		Set<Method> injectables = Sets.newHashSet();
+
+		annotations.get(Injectable.class).forEach(annotation -> injectables
+				.addAll(reflections.getMethodsAnnotatedWith((Class<? extends Annotation>) annotation)));
+
+		return injectables;
+	}
+
+	/**
+	 * Returns a set of classes annotated with {@link Configuration} or its
+	 * alternatives.
+	 * 
+	 * @return A set of classes annotated with {@link Configuration} or its
+	 *         alternatives.
+	 */
+	@SuppressWarnings("unchecked")
+	private Set<Class<?>> getConfigurations() {
+		Set<Class<?>> configurations = Sets.newHashSet();
+
+		annotations.get(Configuration.class)
+				.forEach(annotation -> configurations
+						.addAll(reflections.getTypesAnnotatedWith((Class<? extends Annotation>) annotation).stream()
+								.filter(clazz -> !clazz.isAnnotation()).collect(Collectors.toSet())));
+
+		return configurations;
+	}
+
+	/**
+	 * Returns a set of constructors annotated with {@link Inject} or its
+	 * alternatives.
+	 * 
+	 * @return A set of constructors annotated with {@link Inject} or its
+	 *         alternatives.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Set<Constructor> getConstructorLevelInjections() {
+		Set<Constructor> constructorLevelInjections = Sets.newHashSet();
+
+		annotations.get(Inject.class).forEach(annotation -> constructorLevelInjections
+				.addAll(reflections.getConstructorsAnnotatedWith((Class<? extends Annotation>) annotation)));
+
+		return constructorLevelInjections;
+	}
+
+	/**
+	 * Returns a set of fields annotated with {@link Inject} or its alternatives.
+	 * 
+	 * @return A set of fields annotated with {@link Inject} or its alternatives.
+	 */
+	@SuppressWarnings("unchecked")
+	private Set<Field> getFieldLevelInjections() {
+		Set<Field> fieldLevelInjections = Sets.newHashSet();
+
+		annotations.get(Inject.class).forEach(annotation -> fieldLevelInjections
+				.addAll(reflections.getFieldsAnnotatedWith((Class<? extends Annotation>) annotation)));
+
+		return fieldLevelInjections;
+	}
+
+	/**
+	 * Returns a set of methods annotated with {@link Inject} or its alternatives.
+	 * 
+	 * @return A set of methods annotated with {@link Inject} or its alternatives.
+	 */
+	@SuppressWarnings("unchecked")
+	private Set<Method> getMethodLevelInjections() {
+		Set<Method> methodLevelInjections = Sets.newHashSet();
+
+		annotations.get(Inject.class).forEach(annotation -> methodLevelInjections
+				.addAll(reflections.getMethodsAnnotatedWith((Class<? extends Annotation>) annotation)));
+
+		return methodLevelInjections;
+	}
+
+	/**
+	 * Returns a set of classes annotated with {@link Component} or its
+	 * alternatives.
+	 * 
+	 * @return A set of classes annotated with {@link Component} or its
+	 *         alternatives.
+	 */
+	@SuppressWarnings("unchecked")
+	private Set<Class<?>> getComponents() {
+		Set<Class<?>> components = Sets.newHashSet();
+
+		annotations.get(Component.class)
+				.forEach(annotation -> components
+						.addAll(reflections.getTypesAnnotatedWith((Class<? extends Annotation>) annotation).stream()
+								.filter(clazz -> !clazz.isAnnotation()).collect(Collectors.toSet())));
+
+		return components;
 	}
 
 }

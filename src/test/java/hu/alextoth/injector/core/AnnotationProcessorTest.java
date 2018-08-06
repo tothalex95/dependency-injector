@@ -14,6 +14,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Inject;
+import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableFive;
 import hu.alextoth.injector.demo.DemoInjectableFour;
 import hu.alextoth.injector.demo.DemoInjectableThree;
@@ -30,7 +31,7 @@ public class AnnotationProcessorTest {
 	@Inject
 	private static DemoInjectableFour demoInjectableFour;
 
-	@Inject
+	@DemoAnnotation
 	private static DemoInjectableFive demoInjectableFive;
 
 	@Test
@@ -61,7 +62,7 @@ public class AnnotationProcessorTest {
 				demoInjectableThree.getDemoInjectableTwo().getDemoInjectableOne());
 	}
 
-	@Inject
+	@DemoAnnotation
 	public void setMethodLevelInjection(DemoInjectableThree demoInjectableThree) {
 		AnnotationProcessorTest.demoInjectableThree = demoInjectableThree;
 	}

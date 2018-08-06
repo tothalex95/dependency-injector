@@ -1,6 +1,3 @@
-/**
- * 
- */
 package hu.alextoth.injector.annotation;
 
 import java.lang.annotation.Documented;
@@ -11,10 +8,9 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 /**
  * @author Alex Toth
- *
  */
 public @interface Component {
 
