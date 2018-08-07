@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.com/tothalex95/dependency-injector.svg?branch=master)](https://travis-ci.com/tothalex95/dependency-injector)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/eb1f724b5360443e9687c84b49f18f1e)](https://www.codacy.com/project/tothalex95/dependency-injector/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tothalex95/dependency-injector&amp;utm_campaign=Badge_Grade_Dashboard)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=hu.alextoth%3Adependency-injector&metric=alert_status)](https://sonarcloud.io/dashboard?id=hu.alextoth%3Adependency-injector)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=hu.alextoth%3Adependency-injector&metric=coverage)](https://sonarcloud.io/dashboard?id=hu.alextoth%3Adependency-injector)
 
 # Dependency Injector
 
