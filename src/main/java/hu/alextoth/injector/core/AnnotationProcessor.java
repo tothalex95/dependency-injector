@@ -98,7 +98,7 @@ public class AnnotationProcessor {
 
 		for (Method method : injectables) {
 			Class<?> configurationClass = method.getDeclaringClass();
-			if (!configurations.contains(configurationClass)) {
+			if (Void.TYPE.equals(method.getReturnType()) || !configurations.contains(configurationClass)) {
 				continue;
 			}
 

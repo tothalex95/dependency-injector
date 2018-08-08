@@ -12,7 +12,6 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableFive;
@@ -20,7 +19,7 @@ import hu.alextoth.injector.demo.DemoInjectableFour;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
 
-@Component
+@DemoAnnotation
 public class AnnotationProcessorTest {
 
 	@Inject
