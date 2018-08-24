@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,7 @@ import org.reflections.Reflections;
 
 import com.google.common.collect.Sets;
 
+import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
@@ -32,12 +34,15 @@ public class AnnotationProcessor {
 
 	private final Reflections reflections;
 	private final DependencyHandler dependencyHandler;
+	private final DependencyAliasResolver dependencyAliasResolver;
 
-	public AnnotationProcessor(Reflections reflections, DependencyHandler dependencyHandler) {
+	public AnnotationProcessor(Reflections reflections, DependencyHandler dependencyHandler,
+			DependencyAliasResolver dependencyAliasResolver) {
 		this.annotations = new HashMap<>(4);
 
 		this.reflections = reflections;
 		this.dependencyHandler = dependencyHandler;
+		this.dependencyAliasResolver = dependencyAliasResolver;
 	}
 
 	/**
@@ -106,7 +111,11 @@ public class AnnotationProcessor {
 
 			method.setAccessible(true);
 			try {
-				dependencyHandler.registerInstanceOf(method.getReturnType(), method.invoke(configurationInstance));
+				// TODO: complete and move this dependency alias logic to a separate method
+				Injectable injectable = method.getAnnotation(Injectable.class);
+				String[] aliases = injectable == null ? new String[] { Alias.DEFAULT_ALIAS } : injectable.alias();
+				dependencyHandler.registerInstanceOf(method.getReturnType(), method.invoke(configurationInstance),
+						aliases);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new AnnotationProcessingException(String.format("Cannot process Injectable: %s", method));
 			}
@@ -146,10 +155,11 @@ public class AnnotationProcessor {
 			}
 
 			constructor.setAccessible(true);
-			Class<?>[] parameterClasses = constructor.getParameterTypes();
-			Object[] parameterInstances = new Object[parameterClasses.length];
-			for (int i = 0; i < parameterClasses.length; i++) {
-				parameterInstances[i] = dependencyHandler.getInstanceOf(parameterClasses[i]);
+			Parameter[] parameters = constructor.getParameters();
+			Object[] parameterInstances = new Object[parameters.length];
+			for (int i = 0; i < parameters.length; i++) {
+				parameterInstances[i] = dependencyHandler.getInstanceOf(parameters[i].getType(),
+						dependencyAliasResolver.getAlias(parameters[i]));
 			}
 			try {
 				Object componentInstance = constructor.newInstance(parameterInstances);
@@ -181,7 +191,8 @@ public class AnnotationProcessor {
 
 			field.setAccessible(true);
 			try {
-				field.set(componentInstance, dependencyHandler.getInstanceOf(field.getType()));
+				field.set(componentInstance,
+						dependencyHandler.getInstanceOf(field.getType(), dependencyAliasResolver.getAlias(field)));
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new AnnotationProcessingException(String.format("Cannot process field level Inject: %s", field),
 						e);
@@ -208,10 +219,11 @@ public class AnnotationProcessor {
 			Object componentInstance = dependencyHandler.getInstanceOf(componentClass);
 
 			method.setAccessible(true);
-			Class<?>[] parameterClasses = method.getParameterTypes();
-			Object[] parameterInstances = new Object[parameterClasses.length];
-			for (int i = 0; i < parameterClasses.length; i++) {
-				parameterInstances[i] = dependencyHandler.getInstanceOf(parameterClasses[i]);
+			Parameter[] parameters = method.getParameters();
+			Object[] parameterInstances = new Object[parameters.length];
+			for (int i = 0; i < parameters.length; i++) {
+				parameterInstances[i] = dependencyHandler.getInstanceOf(parameters[i].getType(),
+						dependencyAliasResolver.getAlias(parameters[i]));
 			}
 			try {
 				method.invoke(componentInstance, parameterInstances);

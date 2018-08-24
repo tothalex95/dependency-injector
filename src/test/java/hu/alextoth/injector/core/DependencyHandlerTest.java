@@ -35,7 +35,8 @@ public class DependencyHandlerTest {
 						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
 								new FieldAnnotationsScanner(), new MethodAnnotationsScanner())
 						.setUrls(ClasspathHelper.forPackage("hu.alextoth.injector")));
-		dependencyHandler = new DependencyHandler(reflections);
+		DependencyAliasResolver dependencyAliasResolver = new DependencyAliasResolver(reflections);
+		dependencyHandler = new DependencyHandler(reflections, dependencyAliasResolver);
 	}
 
 	@Test
@@ -56,7 +57,7 @@ public class DependencyHandlerTest {
 	public void testCreateInstanceOfWithParameterizedConstructor() {
 		DemoInjectableOne demoInjectableOne = new DemoInjectableOne(1995, "Alex");
 
-		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne);
+		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne, "alias1");
 		
 		DemoInjectableTwo demoInjectableTwo = dependencyHandler.createInstanceOf(DemoInjectableTwo.class);
 

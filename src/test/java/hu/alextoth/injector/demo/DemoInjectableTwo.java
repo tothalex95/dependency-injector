@@ -1,5 +1,6 @@
 package hu.alextoth.injector.demo;
 
+import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Component;
 
 @Component
@@ -8,7 +9,7 @@ public class DemoInjectableTwo {
 	private DemoInjectableOne demoInjectableOne;
 
 	@DemoAnnotation
-	public DemoInjectableTwo(DemoInjectableOne demoInjectableOne) {
+	public DemoInjectableTwo(@Alias("alias1") DemoInjectableOne demoInjectableOne) {
 		this.demoInjectableOne = demoInjectableOne;
 	}
 

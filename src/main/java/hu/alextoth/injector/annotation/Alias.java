@@ -8,12 +8,14 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 /**
  * @author Alex Toth
  */
-public @interface Injectable {
+public @interface Alias {
 
-	String[] alias() default "";
+	public static final String DEFAULT_ALIAS = "";
+
+	String value() default DEFAULT_ALIAS;
 
 }

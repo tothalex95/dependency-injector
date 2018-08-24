@@ -13,6 +13,7 @@ import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.core.AnnotationProcessor;
+import hu.alextoth.injector.core.DependencyAliasResolver;
 import hu.alextoth.injector.core.DependencyHandler;
 
 /**
@@ -31,8 +32,9 @@ public class DependencyInjector {
 						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
 								new FieldAnnotationsScanner(), new MethodAnnotationsScanner())
 						.setUrls(ClasspathHelper.forPackage(basePackage)));
-		dependencyHandler = new DependencyHandler(reflections);
-		annotationProcessor = new AnnotationProcessor(reflections, dependencyHandler);
+		DependencyAliasResolver dependencyAliasResolver = new DependencyAliasResolver(reflections);
+		dependencyHandler = new DependencyHandler(reflections, dependencyAliasResolver);
+		annotationProcessor = new AnnotationProcessor(reflections, dependencyHandler, dependencyAliasResolver);
 	}
 
 	/**

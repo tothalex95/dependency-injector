@@ -3,6 +3,7 @@ package hu.alextoth.injector.core;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
 
+import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.exception.DependencyCreationException;
 
 /**
@@ -19,29 +21,43 @@ import hu.alextoth.injector.exception.DependencyCreationException;
  */
 public class DependencyHandler {
 
-	private final Reflections reflections;
-	private final Map<Class<?>, Object> dependencies;
+	private final Map<Class<?>, Map<String, Object>> dependencies;
 
-	public DependencyHandler(Reflections reflections) {
-		this.reflections = reflections;
+	private final Reflections reflections;
+	private final DependencyAliasResolver dependencyAliasResolver;
+
+	public DependencyHandler(Reflections reflections, DependencyAliasResolver dependencyAliasResolver) {
 		dependencies = new HashMap<>();
+
+		this.reflections = reflections;
+		this.dependencyAliasResolver = dependencyAliasResolver;
 	}
 
 	/**
 	 * Returns, or creates if necessary, an instance of the given class.
 	 * 
 	 * @param clazz Class of which an instance must be returned.
+	 * @param alias Alias of the requested instance.
 	 * @return A registered instance of the given class.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getInstanceOf(Class<T> clazz) {
-		T instance = (T) dependencies.get(clazz);
+	public <T> T getInstanceOf(Class<T> clazz, String alias) {
+		Map<String, Object> namedDependencies = dependencies.get(clazz);
 
-		if (instance == null) {
-			instance = createInstanceOf(clazz);
+		T instance = null;
+
+		if (namedDependencies == null || (instance = (T) namedDependencies.get(alias)) == null) {
+			instance = createInstanceOf(clazz, alias);
 		}
 
 		return instance;
+	}
+
+	/**
+	 * @see hu.alextoth.injector.core.DependencyHandler#getInstanceOf(Class, String)
+	 */
+	public <T> T getInstanceOf(Class<T> clazz) {
+		return getInstanceOf(clazz, Alias.DEFAULT_ALIAS);
 	}
 
 	/**
@@ -49,22 +65,24 @@ public class DependencyHandler {
 	 * Returns the created instance.
 	 * 
 	 * @param clazz Class to be instantiated.
+	 * @param alias Alias for the requested instance.
 	 * @return An instance of the given class.
 	 */
-	public <T> T createInstanceOf(Class<T> clazz) {
+	public <T> T createInstanceOf(Class<T> clazz, String alias) {
 		T instance = null;
 
 		Constructor<T> constructor = getSuitableConstructor(clazz);
 
-		Class<?>[] parameterClasses = constructor.getParameterTypes();
-		Object[] parameterInstances = new Object[parameterClasses.length];
-		for (int i = 0; i < parameterClasses.length; i++) {
-			parameterInstances[i] = getInstanceOf(parameterClasses[i]);
+		Parameter[] parameters = constructor.getParameters();
+		Object[] parameterInstances = new Object[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
+					dependencyAliasResolver.getAlias(parameters[i]));
 		}
 
 		try {
 			instance = constructor.newInstance(parameterInstances);
-			registerInstanceOf(clazz, instance);
+			registerInstanceOf(clazz, instance, alias);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			throw new DependencyCreationException(String.format("Cannot instantiate %s", clazz), e);
@@ -74,13 +92,36 @@ public class DependencyHandler {
 	}
 
 	/**
-	 * Registers an instance for the given class.
+	 * @see hu.alextoth.injector.core.DependencyHandler#createInstanceOf(Class,
+	 *      String)
+	 */
+	public <T> T createInstanceOf(Class<T> clazz) {
+		return createInstanceOf(clazz, Alias.DEFAULT_ALIAS);
+	}
+
+	/**
+	 * Registers an instance for the given class with the given aliases.
 	 * 
 	 * @param clazz    Class for which the instance must be registered.
 	 * @param instance Class instance to be registered.
+	 * @param aliases  Aliases for the instance to be registered.
 	 */
-	public void registerInstanceOf(Class<?> clazz, Object instance) {
-		dependencies.put(clazz, instance);
+	public void registerInstanceOf(Class<?> clazz, Object instance, String... aliases) {
+		Map<String, Object> namedDependencies = dependencies.get(clazz);
+
+		if (namedDependencies == null) {
+			namedDependencies = new HashMap<>();
+		}
+
+		if (aliases == null || aliases.length == 0) {
+			namedDependencies.put(Alias.DEFAULT_ALIAS, instance);
+		} else {
+			for (String alias : aliases) {
+				namedDependencies.put(alias, instance);
+			}
+		}
+
+		dependencies.put(clazz, namedDependencies);
 	}
 	
 	/**
