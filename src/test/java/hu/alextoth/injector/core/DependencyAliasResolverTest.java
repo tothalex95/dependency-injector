@@ -1,6 +1,7 @@
 package hu.alextoth.injector.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
@@ -15,7 +16,10 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
+import hu.alextoth.injector.demo.InjectsWithoutComponent;
+import hu.alextoth.injector.exception.DependencyAliasResolverException;
 
 public class DependencyAliasResolverTest {
 
@@ -43,6 +47,14 @@ public class DependencyAliasResolverTest {
 		Parameter parameter = DemoInjectableTwo.class.getConstructors()[0].getParameters()[0];
 
 		assertEquals("alias1", dependencyAliasResolver.getAlias(parameter));
+	}
+
+	@Test
+	public void testGetAliasWithWrongAnnotation() throws NoSuchMethodException, SecurityException {
+		Parameter parameter = InjectsWithoutComponent.class.getMethod("wrongAliasSetter", DemoInjectableThree.class)
+				.getParameters()[0];
+		
+		assertThrows(DependencyAliasResolverException.class, () -> dependencyAliasResolver.getAlias(parameter));
 	}
 
 }

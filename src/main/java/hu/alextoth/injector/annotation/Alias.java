@@ -15,7 +15,10 @@ import java.lang.annotation.Target;
 public @interface Alias {
 
 	public static final String DEFAULT_ALIAS = "";
+	public static final String DEFAULT_ALIAS_VALUE_ATTRIBUTE_NAME = "value";
 
 	String value() default DEFAULT_ALIAS;
+
+	String aliasValueAttributeName() default DEFAULT_ALIAS_VALUE_ATTRIBUTE_NAME;
 
 }

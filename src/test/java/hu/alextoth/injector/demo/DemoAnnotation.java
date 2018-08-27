@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
@@ -18,6 +19,9 @@ import hu.alextoth.injector.annotation.Injectable;
 @Injectable
 @Component
 @Inject
+@Alias(aliasValueAttributeName = "name")
 public @interface DemoAnnotation {
+
+	String name() default Alias.DEFAULT_ALIAS;
 
 }

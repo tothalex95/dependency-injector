@@ -41,4 +41,8 @@ public class InjectsWithoutComponent {
 		this.demoInjectableThree = demoInjectableThree;
 	}
 
+	public void wrongAliasSetter(@DemoWrongAlias DemoInjectableThree demoInjectableThree) {
+
+	}
+
 }
