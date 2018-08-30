@@ -15,7 +15,6 @@ import org.reflections.Reflections;
 
 import com.google.common.collect.Sets;
 
-import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
@@ -111,11 +110,8 @@ public class AnnotationProcessor {
 
 			method.setAccessible(true);
 			try {
-				// TODO: complete and move this dependency alias logic to a separate method
-				Injectable injectable = method.getAnnotation(Injectable.class);
-				String[] aliases = injectable == null ? new String[] { Alias.DEFAULT_ALIAS } : injectable.alias();
 				dependencyHandler.registerInstanceOf(method.getReturnType(), method.invoke(configurationInstance),
-						aliases);
+						dependencyAliasResolver.getAliases(method));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new AnnotationProcessingException(String.format("Cannot process Injectable: %s", method));
 			}

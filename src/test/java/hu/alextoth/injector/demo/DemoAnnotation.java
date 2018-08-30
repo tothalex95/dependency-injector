@@ -16,12 +16,14 @@ import hu.alextoth.injector.annotation.Injectable;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE })
 @Configuration
-@Injectable
+@Injectable(aliasAttributeName = "names")
 @Component
 @Inject
 @Alias(aliasValueAttributeName = "name")
 public @interface DemoAnnotation {
 
 	String name() default Alias.DEFAULT_ALIAS;
+
+	String[] names() default {};
 
 }

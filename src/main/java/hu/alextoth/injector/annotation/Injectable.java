@@ -14,6 +14,10 @@ import java.lang.annotation.Target;
  */
 public @interface Injectable {
 
-	String[] alias() default "";
+	public static final String DEFAULT_ALIAS_ATTRIBUTE_NAME = "alias";
+
+	String[] alias() default {};
+
+	String aliasAttributeName() default DEFAULT_ALIAS_ATTRIBUTE_NAME;
 
 }

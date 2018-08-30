@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +17,10 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
+import hu.alextoth.injector.demo.InjectablesWithoutConfiguration;
 import hu.alextoth.injector.demo.InjectsWithoutComponent;
 import hu.alextoth.injector.exception.DependencyAliasResolverException;
 
@@ -55,6 +58,35 @@ public class DependencyAliasResolverTest {
 				.getParameters()[0];
 		
 		assertThrows(DependencyAliasResolverException.class, () -> dependencyAliasResolver.getAlias(parameter));
+	}
+
+	@Test
+	public void testGetAliases() throws NoSuchMethodException, SecurityException {
+		Method method = ConfigClass.class.getMethod("getNamedDemoInjectableOne");
+
+		String[] aliases = dependencyAliasResolver.getAliases(method);
+
+		assertEquals(2, aliases.length);
+		assertEquals("alias1", aliases[0]);
+		assertEquals("alias2", aliases[1]);
+	}
+
+	@Test
+	public void testGetAliasesWithWrongAnnotation() throws NoSuchMethodException, SecurityException {
+		Method method = InjectablesWithoutConfiguration.class.getMethod("demoInjectableThree");
+
+		assertThrows(DependencyAliasResolverException.class, () -> dependencyAliasResolver.getAliases(method));
+
+		Method method2 = InjectablesWithoutConfiguration.class.getMethod("demoInjectableTwo");
+
+		assertThrows(DependencyAliasResolverException.class, () -> dependencyAliasResolver.getAliases(method2));
+	}
+
+	@Test
+	public void testGetAliasesWithoutAnnotation() throws NoSuchMethodException, SecurityException {
+		Method method = DemoInjectableTwo.class.getMethod("getDemoInjectableOne");
+
+		assertEquals(0, dependencyAliasResolver.getAliases(method).length);
 	}
 
 }

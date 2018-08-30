@@ -6,14 +6,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Injectable;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
-@Alias(aliasValueAttributeName = "alias")
-@Injectable
-public @interface DemoWrongAlias {
+@Target({ ElementType.METHOD })
+@Injectable(aliasAttributeName = "name")
+public @interface DemoWrongAlias2 {
 
 }

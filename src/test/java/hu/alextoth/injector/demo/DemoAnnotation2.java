@@ -11,9 +11,10 @@ import hu.alextoth.injector.annotation.Injectable;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
-@Alias(aliasValueAttributeName = "alias")
-@Injectable
-public @interface DemoWrongAlias {
+@Target(ElementType.METHOD)
+@Injectable(aliasAttributeName = "name")
+public @interface DemoAnnotation2 {
+
+	String name() default Alias.DEFAULT_ALIAS;
 
 }
