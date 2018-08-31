@@ -145,3 +145,47 @@ public @interface MyAnnotation {
 
 }
 ```
+
+### Dependency aliases
+
+In some cases it's not enough to have only one instance of a class, so Dependency Injector have to support having multiple instances. You can set aliases for your injectables, so that the annotation processor will be able to differentiate and identify the instances. To set aliases, you can use the *alias* attribute of [@Injectable](https://github.com/tothalex95/dependency-injector/blob/master/src/main/java/hu/alextoth/injector/annotation/Injectable.java) and to tell which instance has to be injected, you can use [@Alias](https://github.com/tothalex95/dependency-injector/blob/master/src/main/java/hu/alextoth/injector/annotation/Alias.java). The default alias value is an empty string.
+
+Here is a simple example for using dependency aliases:
+
+```
+@Configuration
+public class MyConfiguration {
+	
+	@Injectable(alias = "alex")
+	public Author getAlexToth() {
+		return new Author("Alex Toth", new Address("Hungary", "City", "Street", 1));
+	}
+	
+	@Injectable(alias = { "john", "doe", "johndoe" }
+	public Author getJohnDoe() {
+		return new Author("John Doe", new Address("England", "London", "Street", 1));
+	}
+	
+}
+
+@Component
+public class MyComponent {
+
+	private Author alex;
+	
+	private Author john;
+	
+	@Inject
+	@Alias("johndoe")
+	private Author johndoe;
+	
+	@Inject
+	public void setJohn(@Alias("alex") Author alex, @Alias("john") Author john) {
+		this.alex = alex;
+		this.john = john;
+	}
+	
+}
+```
+
+In the example above, I only used *Author* class for injectables. Without aliases the return value of *getJohnDoe* would simply overwrite the previously registered return value of *getAlexToth* as they're of the same type. However, as I've set aliases for them, Dependency Injector knows that they have to be managed separately. So, *john* will be equal to *johndoe*, but they won't be equal to *alex*.
