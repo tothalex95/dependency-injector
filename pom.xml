@@ -18,7 +18,9 @@
 
 		<!-- Project Dependencies -->
 		<junit-jupiter-engine.version>5.2.0</junit-jupiter-engine.version>
+		<mockito.version>2.21.0</mockito.version>
 		<reflections.version>0.9.11</reflections.version>
+		<slf4j.version>1.7.25</slf4j.version>
 	</properties>
 
 	<build>
@@ -67,11 +69,33 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Mockito -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- Reflections -->
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>${reflections.version}</version>
 		</dependency>
+
+		<!-- SLF4J -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 </project>

@@ -7,35 +7,57 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.reflections.Reflections;
-import org.reflections.scanners.FieldAnnotationsScanner;
-import org.reflections.scanners.MethodAnnotationsScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
+import com.google.common.collect.Sets;
+
+import hu.alextoth.injector.annotation.Alias;
+import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.demo.ConfigClass;
+import hu.alextoth.injector.demo.DemoAnnotation;
+import hu.alextoth.injector.demo.DemoAnnotation2;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
+import hu.alextoth.injector.demo.DemoWrongAlias;
+import hu.alextoth.injector.demo.DemoWrongAlias2;
 import hu.alextoth.injector.demo.InjectablesWithoutConfiguration;
 import hu.alextoth.injector.demo.InjectsWithoutComponent;
 import hu.alextoth.injector.exception.DependencyAliasResolverException;
 
+@ExtendWith(MockitoExtension.class)
 public class DependencyAliasResolverTest {
+
+	@Mock
+	private Reflections reflections;
 
 	private DependencyAliasResolver dependencyAliasResolver;
 
 	@BeforeEach
 	public void setUp() {
-		Reflections reflections = new Reflections(
-				new ConfigurationBuilder()
-						.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner(),
-								new FieldAnnotationsScanner(), new MethodAnnotationsScanner())
-						.setUrls(ClasspathHelper.forPackage("hu.alextoth.injector")));
+		Mockito.when(reflections.getTypesAnnotatedWith(Alias.class))
+				.thenReturn(Sets.newHashSet(DemoAnnotation.class, DemoWrongAlias.class));
+		Mockito.when(reflections.getTypesAnnotatedWith(Injectable.class))
+				.thenReturn(Sets.newHashSet(DemoAnnotation.class, DemoAnnotation2.class, DemoWrongAlias.class,
+						DemoWrongAlias2.class));
+
 		dependencyAliasResolver = new DependencyAliasResolver(reflections);
+	}
+
+	@AfterEach
+	public void tearDown() {
+		InOrder inOrder = Mockito.inOrder(reflections);
+
+		inOrder.verify(reflections).getTypesAnnotatedWith(Alias.class);
+		inOrder.verify(reflections).getTypesAnnotatedWith(Injectable.class);
+
+		Mockito.reset(reflections);
 	}
 
 	@Test
