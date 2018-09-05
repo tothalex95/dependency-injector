@@ -47,13 +47,14 @@ public class DependencyInjector {
 
 	/**
 	 * Returns, or creates and registers if necessary, a registered instance of a
-	 * given class.
+	 * given class with the given alias.
 	 * 
 	 * @param clazz Class of which an instance must be returned.
+	 * @param alias Alias of the dependency that must to be returned.
 	 * @return A registered instance of the given class.
 	 */
-	public <T> T getInstanceOf(Class<T> clazz) {
-		return dependencyHandler.getInstanceOf(clazz);
+	public <T> T getDependency(Class<T> clazz, String alias) {
+		return dependencyHandler.getInstanceOf(clazz, alias);
 	}
 
 }

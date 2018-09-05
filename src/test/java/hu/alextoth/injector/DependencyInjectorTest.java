@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableOne;
@@ -16,6 +17,7 @@ import hu.alextoth.injector.demo.DemoInjectableTwo;
 public class DependencyInjectorTest {
 
 	@Inject
+	@Alias("alias1")
 	private static DemoInjectableOne demoInjectableOne;
 
 	@Inject
@@ -39,16 +41,16 @@ public class DependencyInjectorTest {
 		assertNotNull(demoInjectableThree);
 
 		assertEquals(demoInjectableOne.getDemoInteger(), Integer.valueOf(2018));
-		assertEquals(demoInjectableOne.getDemoString(), "Alex Toth");
+		assertEquals(demoInjectableOne.getDemoString(), "namedDependency");
 
-//		assertEquals(demoInjectableOne, demoInjectableTwo.getDemoInjectableOne());
+		assertEquals(demoInjectableOne, demoInjectableTwo.getDemoInjectableOne());
 		assertEquals(demoInjectableTwo, demoInjectableThree.getDemoInjectableTwo());
 	}
 
 	@Test
 	public void testGetInstanceOf() {
-		assertNotNull(dependencyInjector.getInstanceOf(Object.class));
-		assertEquals(demoInjectableOne, dependencyInjector.getInstanceOf(DemoInjectableOne.class));
+		assertNotNull(dependencyInjector.getDependency(Object.class, Alias.DEFAULT_ALIAS));
+		assertEquals(demoInjectableOne, dependencyInjector.getDependency(DemoInjectableOne.class, "alias1"));
 	}
 
 }
