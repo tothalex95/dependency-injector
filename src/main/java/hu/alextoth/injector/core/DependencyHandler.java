@@ -71,7 +71,7 @@ public class DependencyHandler {
 	public <T> T createInstanceOf(Class<T> clazz, String alias) {
 		T instance = null;
 
-		Constructor<T> constructor = getSuitableConstructor(clazz);
+		Constructor<? extends T> constructor = getSuitableConstructor(clazz);
 
 		Parameter[] parameters = constructor.getParameters();
 		Object[] parameterInstances = new Object[parameters.length];
@@ -135,8 +135,8 @@ public class DependencyHandler {
 	 * @return An appropriate constructor for the given class.
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> Constructor<T> getSuitableConstructor(Class<T> clazz) {
-		Constructor<T> constructor = null;
+	private <T> Constructor<? extends T> getSuitableConstructor(Class<T> clazz) {
+		Constructor<? extends T> constructor = null;
 
 		if (Modifier.isInterface(clazz.getModifiers()) || Modifier.isAbstract(clazz.getModifiers())) {
 			List<Class<? extends T>> suitableClasses = reflections.getSubTypesOf(clazz).stream()
@@ -153,7 +153,7 @@ public class DependencyHandler {
 						String.format("Found too many suitable implementations for %s", clazz));
 			}
 
-			constructor = (Constructor<T>) getSuitableConstructor(suitableClasses.get(0));
+			constructor = getSuitableConstructor(suitableClasses.get(0));
 		} else {
 			Constructor<T>[] declaredConstuctors = (Constructor<T>[]) clazz.getDeclaredConstructors();
 			constructor = declaredConstuctors[0];

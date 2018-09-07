@@ -115,9 +115,7 @@ public class DependencyAliasResolver {
 	 *                                          got an attribute containing alias
 	 *                                          value.
 	 */
-	private String extractAliasValue(Annotation annotation) throws DependencyAliasResolverException {
-		String alias = Alias.DEFAULT_ALIAS;
-
+	private String extractAliasValue(Annotation annotation) {
 		Class<?> aliasClass = annotation.annotationType();
 		Object aliasInstance = aliasClass.cast(annotation);
 
@@ -128,7 +126,7 @@ public class DependencyAliasResolver {
 		try {
 			Method aliasValueAttribute = aliasClass.getMethod(aliasValueAttributeName);
 
-			alias = String.valueOf(aliasValueAttribute.invoke(aliasInstance));
+			return String.valueOf(aliasValueAttribute.invoke(aliasInstance));
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			throw new DependencyAliasResolverException(
@@ -136,8 +134,6 @@ public class DependencyAliasResolver {
 							aliasValueAttributeName),
 					e);
 		}
-
-		return alias;
 	}
 
 	/**
@@ -151,7 +147,7 @@ public class DependencyAliasResolver {
 	 *                                          got an attribute containing
 	 *                                          dependency alias values.
 	 */
-	private List<String> extractAliasValues(Annotation annotation) throws DependencyAliasResolverException {
+	private List<String> extractAliasValues(Annotation annotation) {
 		List<String> aliases = Lists.newArrayList();
 
 		Class<?> injectableClass = annotation.annotationType();
@@ -164,18 +160,32 @@ public class DependencyAliasResolver {
 		try {
 			Method aliasAttribute = injectableClass.getMethod(aliasAttributeName);
 
-			try {
-				Object[] aliasObjects = (Object[]) aliasAttribute.invoke(injectableInstance);
-				Arrays.stream(aliasObjects).forEach(aliasObject -> aliases.add(String.valueOf(aliasObject)));
-			} catch (ClassCastException e) {
-				aliases.add(String.valueOf(aliasAttribute.invoke(injectableInstance)));
-			}
+			aliases.addAll(convertAliasValuesToString(aliasAttribute.invoke(injectableInstance)));
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			throw new DependencyAliasResolverException(
 					String.format("Annotation %s must have '%s' attribute to be used as injectable.",
 							injectableClass.getName(), aliasAttributeName),
 					e);
+		}
+
+		return aliases;
+	}
+
+	/**
+	 * Converts the given alias values to string and returns them as list.
+	 * 
+	 * @param aliasValues The given alias values in any type.
+	 * @return A list of the alias values converted to string.
+	 */
+	private List<String> convertAliasValuesToString(Object aliasValues) {
+		List<String> aliases = Lists.newArrayList();
+
+		try {
+			Object[] aliasObjects = (Object[]) aliasValues;
+			Arrays.stream(aliasObjects).forEach(aliasObject -> aliases.add(String.valueOf(aliasObject)));
+		} catch (ClassCastException e) {
+			aliases.add(String.valueOf(aliasValues));
 		}
 
 		return aliases;
