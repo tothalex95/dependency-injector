@@ -2,6 +2,7 @@ package hu.alextoth.injector.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,32 +61,19 @@ public class AnnotationProcessor {
 	 * Basically, it looks up annotations annotated with {@link Configuration},
 	 * {@link Injectable}, {@link Component} or {@link Inject}.
 	 */
+	@SuppressWarnings("unchecked")
 	private void registerAnnotationsToCheck() {
 		annotations.clear();
 
-		Set<Class<?>> configurationAnnotations = Sets.newHashSet(Configuration.class);
-		configurationAnnotations.addAll(reflections.getTypesAnnotatedWith(Configuration.class).stream()
-				.filter(clazz -> clazz.isAnnotation())
-				.collect(Collectors.toSet()));
-		annotations.put(Configuration.class, configurationAnnotations);
+		Set<Class<? extends Annotation>> basicAnnotations = Sets.newHashSet(Configuration.class, Injectable.class,
+				Component.class, Inject.class);
 
-		Set<Class<?>> injectableAnnotations = Sets.newHashSet(Injectable.class);
-		injectableAnnotations.addAll(reflections.getTypesAnnotatedWith(Injectable.class).stream()
-				.filter(clazz -> clazz.isAnnotation())
-				.collect(Collectors.toSet()));
-		annotations.put(Injectable.class, injectableAnnotations);
-
-		Set<Class<?>> componentAnnotations = Sets.newHashSet(Component.class);
-		componentAnnotations.addAll(reflections.getTypesAnnotatedWith(Component.class).stream()
-				.filter(clazz -> clazz.isAnnotation())
-				.collect(Collectors.toSet()));
-		annotations.put(Component.class, componentAnnotations);
-
-		Set<Class<?>> injectAnnotations = Sets.newHashSet(Inject.class);
-		injectAnnotations.addAll(reflections.getTypesAnnotatedWith(Inject.class).stream()
-				.filter(clazz -> clazz.isAnnotation())
-				.collect(Collectors.toSet()));
-		annotations.put(Inject.class, injectAnnotations);
+		for (Class<? extends Annotation> annotation : basicAnnotations) {
+			Set<Class<?>> similarAnnotations = Sets.newHashSet(annotation);
+			similarAnnotations.addAll(reflections.getTypesAnnotatedWith(annotation).stream()
+					.filter(clazz -> clazz.isAnnotation()).collect(Collectors.toSet()));
+			annotations.put(annotation, similarAnnotations);
+		}
 	}
 
 	/**
@@ -102,15 +90,17 @@ public class AnnotationProcessor {
 
 		for (Method method : injectables) {
 			Class<?> configurationClass = method.getDeclaringClass();
-			if (Void.TYPE.equals(method.getReturnType()) || !configurations.contains(configurationClass)) {
+			if (!configurations.contains(configurationClass)) {
 				continue;
 			}
 
 			Object configurationInstance = dependencyHandler.getInstanceOf(configurationClass);
 
 			method.setAccessible(true);
+			Object[] parameterInstances = resolveParameters(method);
 			try {
-				dependencyHandler.registerInstanceOf(method.getReturnType(), method.invoke(configurationInstance),
+				dependencyHandler.registerInstanceOf(method.getReturnType(),
+						method.invoke(configurationInstance, parameterInstances),
 						dependencyAliasResolver.getAliases(method));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new AnnotationProcessingException(String.format("Cannot process Injectable: %s", method));
@@ -151,12 +141,7 @@ public class AnnotationProcessor {
 			}
 
 			constructor.setAccessible(true);
-			Parameter[] parameters = constructor.getParameters();
-			Object[] parameterInstances = new Object[parameters.length];
-			for (int i = 0; i < parameters.length; i++) {
-				parameterInstances[i] = dependencyHandler.getInstanceOf(parameters[i].getType(),
-						dependencyAliasResolver.getAlias(parameters[i]));
-			}
+			Object[] parameterInstances = resolveParameters(constructor);
 			try {
 				Object componentInstance = constructor.newInstance(parameterInstances);
 				dependencyHandler.registerInstanceOf(componentClass, componentInstance);
@@ -215,12 +200,7 @@ public class AnnotationProcessor {
 			Object componentInstance = dependencyHandler.getInstanceOf(componentClass);
 
 			method.setAccessible(true);
-			Parameter[] parameters = method.getParameters();
-			Object[] parameterInstances = new Object[parameters.length];
-			for (int i = 0; i < parameters.length; i++) {
-				parameterInstances[i] = dependencyHandler.getInstanceOf(parameters[i].getType(),
-						dependencyAliasResolver.getAlias(parameters[i]));
-			}
+			Object[] parameterInstances = resolveParameters(method);
 			try {
 				method.invoke(componentInstance, parameterInstances);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -241,8 +221,10 @@ public class AnnotationProcessor {
 	private Set<Method> getInjectables() {
 		Set<Method> injectables = Sets.newHashSet();
 
-		annotations.get(Injectable.class).forEach(annotation -> injectables
-				.addAll(reflections.getMethodsAnnotatedWith((Class<? extends Annotation>) annotation)));
+		annotations.get(Injectable.class)
+				.forEach(annotation -> injectables.addAll(reflections
+						.getMethodsAnnotatedWith((Class<? extends Annotation>) annotation).stream()
+						.filter(method -> !method.getReturnType().equals(Void.TYPE)).collect(Collectors.toSet())));
 
 		return injectables;
 	}
@@ -330,6 +312,19 @@ public class AnnotationProcessor {
 								.filter(clazz -> !clazz.isAnnotation()).collect(Collectors.toSet())));
 
 		return components;
+	}
+
+	// TODO: maybe I should move this method to a ParameterResolver class
+	private Object[] resolveParameters(Executable executable) {
+		Parameter[] parameters = executable.getParameters();
+		Object[] parameterInstances = new Object[parameters.length];
+
+		for (int i = 0; i < parameters.length; i++) {
+			parameterInstances[i] = dependencyHandler.getInstanceOf(parameters[i].getType(),
+					dependencyAliasResolver.getAlias(parameters[i]));
+		}
+
+		return parameterInstances;
 	}
 
 }
