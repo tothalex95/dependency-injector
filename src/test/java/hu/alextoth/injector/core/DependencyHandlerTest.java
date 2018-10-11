@@ -26,7 +26,6 @@ import hu.alextoth.injector.demo.DemoInjectableSevenImpl2;
 import hu.alextoth.injector.demo.DemoInjectableSix;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
-import hu.alextoth.injector.exception.DependencyCreationException;
 
 @ExtendWith(MockitoExtension.class)
 public class DependencyHandlerTest {
@@ -72,7 +71,7 @@ public class DependencyHandlerTest {
 		DemoInjectableOne demoInjectableOne = new DemoInjectableOne(1995, "Alex");
 
 		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne, "alias1");
-		
+
 		DemoInjectableTwo demoInjectableTwo = dependencyHandler.createInstanceOf(DemoInjectableTwo.class);
 
 		assertNotNull(demoInjectableTwo);
@@ -83,7 +82,7 @@ public class DependencyHandlerTest {
 
 	@Test
 	public void testCreateInstanceOfWithNonPublicConstructor() {
-		assertThrows(DependencyCreationException.class,
+		assertThrows(IllegalArgumentException.class,
 				() -> dependencyHandler.createInstanceOf(DemoInjectableEight.class));
 	}
 
@@ -117,8 +116,7 @@ public class DependencyHandlerTest {
 	public void testCreateInstanceOfWithInterfaceWithoutSuitableImplementation() {
 		Mockito.when(reflections.getSubTypesOf(DemoInjectableSix.class)).thenReturn(Sets.newHashSet());
 
-		assertThrows(DependencyCreationException.class,
-				() -> dependencyHandler.createInstanceOf(DemoInjectableSix.class));
+		assertThrows(IllegalArgumentException.class, () -> dependencyHandler.createInstanceOf(DemoInjectableSix.class));
 
 		Mockito.verify(reflections).getSubTypesOf(DemoInjectableSix.class);
 	}
@@ -129,7 +127,7 @@ public class DependencyHandlerTest {
 		Mockito.when(reflections.getSubTypesOf(DemoInjectableSeven.class))
 				.thenReturn(Sets.newHashSet(DemoInjectableSevenImpl1.class, DemoInjectableSevenImpl2.class));
 
-		assertThrows(DependencyCreationException.class,
+		assertThrows(IllegalArgumentException.class,
 				() -> dependencyHandler.createInstanceOf(DemoInjectableSeven.class));
 
 		Mockito.verify(reflections).getSubTypesOf(DemoInjectableSeven.class);

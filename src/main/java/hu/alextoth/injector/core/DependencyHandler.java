@@ -1,7 +1,6 @@
 package hu.alextoth.injector.core;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
@@ -12,7 +11,9 @@ import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 import hu.alextoth.injector.annotation.Alias;
-import hu.alextoth.injector.exception.DependencyCreationException;
+import hu.alextoth.injector.annotation.Injectable;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
 
 /**
  * Class for managing instances of dependency classes.
@@ -31,6 +32,21 @@ public class DependencyHandler {
 
 		this.reflections = reflections;
 		this.dependencyAliasResolver = dependencyAliasResolver;
+	}
+
+	/**
+	 * Returns a boolean value indicating whether an instance of the given class
+	 * with the given alias exists or not.
+	 * 
+	 * @param clazz
+	 * @param alias
+	 * @return Whether an instance of the given class with the given alias exists or
+	 *         not.
+	 */
+	public boolean hasInstanceOf(Class<?> clazz, String alias) {
+		Map<String, Object> namedDependencies = dependencies.get(clazz);
+
+		return namedDependencies != null && namedDependencies.get(alias) != null;
 	}
 
 	/**
@@ -68,6 +84,7 @@ public class DependencyHandler {
 	 * @param alias Alias for the requested instance.
 	 * @return An instance of the given class.
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T createInstanceOf(Class<T> clazz, String alias) {
 		T instance = null;
 
@@ -80,13 +97,21 @@ public class DependencyHandler {
 					dependencyAliasResolver.getAlias(parameters[i]));
 		}
 
-		try {
-			instance = constructor.newInstance(parameterInstances);
-			registerInstanceOf(clazz, instance, alias);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			throw new DependencyCreationException(String.format("Cannot instantiate %s", clazz), e);
-		}
+		Enhancer enhancer = new Enhancer();
+		enhancer.setSuperclass(clazz);
+		enhancer.setCallback((MethodInterceptor) (obj, method, args, proxy) -> {
+			if (method.isAnnotationPresent(Injectable.class)) {
+				String[] aliases = dependencyAliasResolver.getAliases(method);
+
+				if (hasInstanceOf(method.getReturnType(), aliases[0])) {
+					return getInstanceOf(method.getReturnType(), aliases[0]);
+				}
+			}
+			return proxy.invokeSuper(obj, args);
+		});
+
+		instance = (T) enhancer.create(constructor.getParameterTypes(), parameterInstances);
+		registerInstanceOf(clazz, instance, alias);
 
 		return instance;
 	}
@@ -123,7 +148,7 @@ public class DependencyHandler {
 
 		dependencies.put(clazz, namedDependencies);
 	}
-	
+
 	/**
 	 * Finds a suitable, instantiable class for the given class and returns its
 	 * constructor.<br>
@@ -145,11 +170,10 @@ public class DependencyHandler {
 
 			int numberOfSuitableClasses = suitableClasses.size();
 			if (numberOfSuitableClasses == 0) {
-				throw new DependencyCreationException(
-						String.format("Cannot find suitable implementation for %s", clazz));
+				throw new IllegalArgumentException(String.format("Cannot find suitable implementation for %s", clazz));
 			}
 			if (numberOfSuitableClasses > 1) {
-				throw new DependencyCreationException(
+				throw new IllegalArgumentException(
 						String.format("Found too many suitable implementations for %s", clazz));
 			}
 

@@ -16,7 +16,7 @@ public @interface Injectable {
 
 	public static final String DEFAULT_ALIAS_ATTRIBUTE_NAME = "alias";
 
-	String[] alias() default {};
+	String[] alias() default Alias.DEFAULT_ALIAS;
 
 	String aliasAttributeName() default DEFAULT_ALIAS_ATTRIBUTE_NAME;
 

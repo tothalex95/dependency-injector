@@ -20,4 +20,9 @@ public class ConfigClass {
 		return new DemoInjectableOne(2018, "namedDependency2");
 	}
 
+	@Injectable()
+	public DemoInjectableNine getDemoInjectableNine() {
+		return new DemoInjectableNine(getNamedDemoInjectableOne());
+	}
+
 }
