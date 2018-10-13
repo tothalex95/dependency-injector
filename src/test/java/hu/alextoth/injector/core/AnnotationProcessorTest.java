@@ -11,21 +11,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.reflections.Reflections;
 
 import com.google.common.collect.Sets;
 
-import hu.alextoth.injector.DependencyInjectorTest;
 import hu.alextoth.injector.annotation.Alias;
-import hu.alextoth.injector.annotation.Component;
-import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
-import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
-import hu.alextoth.injector.demo.DemoAnnotation2;
 import hu.alextoth.injector.demo.DemoInjectableFive;
 import hu.alextoth.injector.demo.DemoInjectableFiveImpl;
 import hu.alextoth.injector.demo.DemoInjectableFour;
@@ -33,17 +28,13 @@ import hu.alextoth.injector.demo.DemoInjectableFourImpl;
 import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
-import hu.alextoth.injector.demo.DemoWrongAlias;
-import hu.alextoth.injector.demo.DemoWrongAlias2;
-import hu.alextoth.injector.demo.InjectablesWithoutConfiguration;
-import hu.alextoth.injector.demo.InjectsWithoutComponent;
 
 @ExtendWith(MockitoExtension.class)
 @DemoAnnotation
 public class AnnotationProcessorTest {
 
 	@Mock
-	private Reflections reflections;
+	private AnnotationProcessorHelper annotationProcessorHelper;
 
 	@Mock
 	private DependencyAliasResolver dependencyAliasResolver;
@@ -51,10 +42,13 @@ public class AnnotationProcessorTest {
 	@Mock
 	private DependencyHandler dependencyHandler;
 
+	@InjectMocks
+	private AnnotationProcessor annotationProcessor;
+
 	@Inject
 	@Alias("alias2")
 	private static DemoInjectableOne demoInjectableOne;
-	
+
 	private static DemoInjectableOne demoInjectableOne2;
 
 	@Inject
@@ -70,90 +64,41 @@ public class AnnotationProcessorTest {
 
 	@BeforeEach
 	public void setUp() throws NoSuchMethodException, SecurityException, NoSuchFieldException {
-		prepareReflections();
+		prepareAnnotationProcessorHelper();
 		prepareDependencyAliasResolver();
 		prepareDependencyHandler();
 	}
 
-	private void prepareReflections() throws NoSuchMethodException, SecurityException, NoSuchFieldException {
-		// Types annotated with Configuration
-		Mockito.when(reflections.getTypesAnnotatedWith(Configuration.class))
-				.thenReturn(Sets.newHashSet(DemoAnnotation.class, ConfigClass.class, AnnotationProcessorTest.class,
-						DependencyInjectorTest.class));
+	private void prepareAnnotationProcessorHelper()
+			throws NoSuchFieldException, NoSuchMethodException, SecurityException {
+		// Injectable methods
+		Mockito.when(annotationProcessorHelper.getInjectableMethods())
+				.thenReturn(Sets.newHashSet(ConfigClass.class.getDeclaredMethods()));
 
-		// Types annotated with Injectable
-		Mockito.when(reflections.getTypesAnnotatedWith(Injectable.class))
-				.thenReturn(Sets.newHashSet(DemoWrongAlias.class, DemoAnnotation2.class, DemoAnnotation.class,
-						ConfigClass.class, DemoWrongAlias2.class, AnnotationProcessorTest.class,
-						DependencyInjectorTest.class));
+		// Configuration classes
+		Mockito.when(annotationProcessorHelper.isConfigurationClass(ConfigClass.class)).thenReturn(true);
 
-		// Types annotated with Component
-		Mockito.when(reflections.getTypesAnnotatedWith(Component.class))
-				.thenReturn(Sets.newHashSet(ConfigClass.class, DemoInjectableTwo.class, DemoAnnotation.class,
-						DependencyInjectorTest.class, DemoInjectableThree.class, AnnotationProcessorTest.class));
+		// Inject constructors
+		Mockito.when(annotationProcessorHelper.getInjectConstructors())
+				.thenReturn(Sets.newHashSet(DemoInjectableTwo.class.getConstructor(DemoInjectableOne.class)));
 
-		// Types annotated with Inject
-		Mockito.when(reflections.getTypesAnnotatedWith(Inject.class)).thenReturn(Sets.newHashSet(ConfigClass.class,
-				DemoAnnotation.class, DependencyInjectorTest.class, AnnotationProcessorTest.class));
-
-		// Methods annotated with Injectable
-		Mockito.when(reflections.getMethodsAnnotatedWith(Injectable.class))
-				.thenReturn(
-						Sets.newHashSet(InjectablesWithoutConfiguration.class.getDeclaredMethod("demoInjectableOne"),
-								ConfigClass.class.getDeclaredMethod("getDemoInjectableOne")));
-
-		// Methods annotated with Inject
-		Mockito.when(reflections.getMethodsAnnotatedWith(Inject.class))
-				.thenReturn(Sets.newHashSet(
-						DemoInjectableThree.class.getDeclaredMethod("setDemoInjectableTwo", DemoInjectableTwo.class),
-						InjectablesWithoutConfiguration.class.getDeclaredMethod("demoInjectableTwo"),
-						InjectsWithoutComponent.class.getDeclaredMethod("setDemoInjectableThree",
-								DemoInjectableThree.class),
-						AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne",
-								DemoInjectableOne.class)));
-
-		// Methods annotated with DemoAnnotation
-		Mockito.when(reflections.getMethodsAnnotatedWith(DemoAnnotation.class))
-				.thenReturn(Sets.newHashSet(
-						AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree",
-								DemoInjectableThree.class),
-						ConfigClass.class.getDeclaredMethod("getNamedDemoInjectableOne")));
-
-		// Methods annotated with DemoAnnotation2
-		Mockito.when(reflections.getMethodsAnnotatedWith(DemoAnnotation2.class))
-				.thenReturn(Sets.newHashSet(ConfigClass.class.getDeclaredMethod("getNamedDemoInjectableOne2")));
-
-		// Methods annotated with DemoWrongAlias
-		Mockito.when(reflections.getMethodsAnnotatedWith(DemoWrongAlias.class))
-				.thenReturn(Sets
-						.newHashSet(InjectablesWithoutConfiguration.class.getDeclaredMethod("demoInjectableThree")));
-
-		// Methods annotated with DemoWrongAlias2
-		Mockito.when(reflections.getMethodsAnnotatedWith(DemoWrongAlias2.class))
-				.thenReturn(
-						Sets.newHashSet(InjectablesWithoutConfiguration.class.getDeclaredMethod("demoInjectableTwo")));
-
-		// Fields annotated with Inject
-		Mockito.when(reflections.getFieldsAnnotatedWith(Inject.class))
-				.thenReturn(Sets.newHashSet(InjectsWithoutComponent.class.getDeclaredField("demoInjectableOne"),
-						DependencyInjectorTest.class.getDeclaredField("demoInjectableOne"),
-						AnnotationProcessorTest.class.getDeclaredField("demoInjectableFour"),
-						DependencyInjectorTest.class.getDeclaredField("demoInjectableThree"),
-						AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne"),
+		// Inject fields
+		Mockito.when(annotationProcessorHelper.getInjectFields())
+				.thenReturn(Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne"),
 						AnnotationProcessorTest.class.getDeclaredField("demoInjectableTwo"),
-						DependencyInjectorTest.class.getDeclaredField("demoInjectableTwo")));
+						AnnotationProcessorTest.class.getDeclaredField("demoInjectableFour"),
+						AnnotationProcessorTest.class.getDeclaredField("demoInjectableFive")));
 
-		// Fields annotated with DemoAnnotation
-		Mockito.when(reflections.getFieldsAnnotatedWith(DemoAnnotation.class))
-				.thenReturn(Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoInjectableFive")));
+		// Inject methods
+		Mockito.when(annotationProcessorHelper.getInjectMethods()).thenReturn(Sets.newHashSet(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class),
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class),
+				DemoInjectableThree.class.getDeclaredMethod("setDemoInjectableTwo", DemoInjectableTwo.class)));
 
-		// Constructors annotated with Inject
-		Mockito.when(reflections.getConstructorsAnnotatedWith(Inject.class)).thenReturn(
-				Sets.newHashSet(InjectsWithoutComponent.class.getDeclaredConstructor(DemoInjectableTwo.class)));
-
-		// Constructors annotated with DemoAnnotation
-		Mockito.when(reflections.getConstructorsAnnotatedWith(DemoAnnotation.class)).thenReturn(
-				Sets.newHashSet(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class)));
+		// Component classes
+		Mockito.when(annotationProcessorHelper.isComponentClass(AnnotationProcessorTest.class)).thenReturn(true);
+		Mockito.when(annotationProcessorHelper.isComponentClass(DemoInjectableTwo.class)).thenReturn(true);
+		Mockito.when(annotationProcessorHelper.isComponentClass(DemoInjectableThree.class)).thenReturn(true);
 	}
 
 	private void prepareDependencyAliasResolver()
@@ -196,8 +141,10 @@ public class AnnotationProcessorTest {
 
 		DemoInjectableOne demoInjectableOne12 = new DemoInjectableOne(2018, "namedDependency");
 		DemoInjectableOne demoInjectableOne3 = new DemoInjectableOne(2018, "namedDependency2");
-		Mockito.when(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias1")).thenReturn(demoInjectableOne12);
-		Mockito.when(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias2")).thenReturn(demoInjectableOne12);
+		Mockito.when(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias1"))
+				.thenReturn(demoInjectableOne12);
+		Mockito.when(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias2"))
+				.thenReturn(demoInjectableOne12);
 		Mockito.when(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias3")).thenReturn(demoInjectableOne3);
 
 		DemoInjectableTwo demoInjectableTwo = new DemoInjectableTwo(demoInjectableOne12);
@@ -221,13 +168,11 @@ public class AnnotationProcessorTest {
 
 	@AfterEach
 	public void tearDown() {
-		Mockito.reset(reflections, dependencyAliasResolver, dependencyHandler);
+		Mockito.reset(annotationProcessorHelper, dependencyAliasResolver, dependencyHandler);
 	}
 
 	@Test
 	public void testProcessAnnotations() {
-		AnnotationProcessor annotationProcessor = new AnnotationProcessor(reflections, dependencyHandler,
-				dependencyAliasResolver);
 		annotationProcessor.processAnnotations();
 
 		assertNotNull(demoInjectableOne);
@@ -261,5 +206,5 @@ public class AnnotationProcessorTest {
 	public void setDemoInjectableThree(DemoInjectableThree demoInjectableThree) {
 		AnnotationProcessorTest.demoInjectableThree = demoInjectableThree;
 	}
-	
+
 }
