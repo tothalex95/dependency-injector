@@ -181,11 +181,53 @@ public class AnnotationProcessorHelper {
 	 *         method or not.
 	 */
 	public boolean isInjectableMethod(Method method) {
-		if (Void.TYPE.equals(method.getReturnType()) || !isConfigurationClass(method.getDeclaringClass())) {
+		if (!canBeUsedAsInjectableMethod(method)) {
 			return false;
 		}
 		return Arrays.stream(method.getAnnotations())
 				.anyMatch(annotation -> isInjectableAnnotation(annotation.annotationType()));
+	}
+
+	/**
+	 * Returns a set of component classes.
+	 * 
+	 * @return A set of component classes.
+	 */
+	public Set<Class<?>> getComponentClasses() {
+		Set<Class<?>> componentClasses = Sets.newHashSet();
+
+		getComponentAnnotations().forEach(annotation -> componentClasses.addAll(getClassesAnnotatedWith(annotation)));
+
+		return componentClasses;
+	}
+
+	/**
+	 * Returns a set of configuration classes.
+	 * 
+	 * @return A set of configuration classes.
+	 */
+	public Set<Class<?>> getConfigurationClasses() {
+		Set<Class<?>> configurationClasses = Sets.newHashSet();
+
+		getConfigurationAnnotations()
+				.forEach(annotation -> configurationClasses.addAll(getClassesAnnotatedWith(annotation)));
+
+		return configurationClasses;
+	}
+
+	/**
+	 * Returns a set of injectable methods.
+	 * 
+	 * @return A set of injectable methods.
+	 */
+	public Set<Method> getInjectableMethods() {
+		Set<Method> injectableMethods = Sets.newHashSet();
+
+		getInjectableAnnotations().forEach(annotation -> injectableMethods.addAll(getMethodsAnnotatedWith(annotation)));
+
+		return injectableMethods.stream()
+				.filter(method -> canBeUsedAsInjectableMethod(method))
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -213,6 +255,41 @@ public class AnnotationProcessorHelper {
 		annotations.put(annotation, annotatedAnnotations);
 
 		return annotatedAnnotations;
+	}
+
+	/**
+	 * Returns a set of classes annotated with the given annotation.
+	 * 
+	 * @param annotation Classes annotated with this must be returned.
+	 * @return A set of classes annotated with the given annotation.
+	 */
+	private Set<Class<?>> getClassesAnnotatedWith(Class<? extends Annotation> annotation) {
+		return reflections.getTypesAnnotatedWith(annotation).stream()
+				.filter(clazz -> !clazz.isAnnotation())
+				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns a set of methods annotated with the given annotation.
+	 * 
+	 * @param annotation Methods annotated with this must be returned.
+	 * @return A set of methods annotated with the given annotation.
+	 */
+	private Set<Method> getMethodsAnnotatedWith(Class<? extends Annotation> annotation) {
+		return reflections.getMethodsAnnotatedWith(annotation).stream()
+				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given method can be used as
+	 * injectable or not.
+	 * 
+	 * @param method Method to check whether it can be used as injectable or not.
+	 * @return A boolean value indicating whether the given method can be used as
+	 *         injectable or not.
+	 */
+	private boolean canBeUsedAsInjectableMethod(Method method) {
+		return !Void.TYPE.equals(method.getReturnType()) && isConfigurationClass(method.getDeclaringClass());
 	}
 
 }

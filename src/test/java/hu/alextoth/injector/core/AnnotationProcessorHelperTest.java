@@ -3,7 +3,10 @@ package hu.alextoth.injector.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +26,10 @@ import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
+import hu.alextoth.injector.demo.DemoAnnotation2;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
+import hu.alextoth.injector.demo.DemoWrongAlias;
 import hu.alextoth.injector.demo.InjectablesWithoutConfiguration;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,14 +49,24 @@ public class AnnotationProcessorHelperTest {
 		Mockito.when(reflections.getTypesAnnotatedWith(Configuration.class))
 				.thenReturn(Sets.newHashSet(ConfigClass.class, DemoAnnotation.class, Configuration.class));
 
-		Mockito.when(reflections.getTypesAnnotatedWith(Injectable.class))
-				.thenReturn(Sets.newHashSet(DemoAnnotation.class, Injectable.class));
+		Mockito.when(reflections.getTypesAnnotatedWith(Injectable.class)).thenReturn(
+				Sets.newHashSet(DemoAnnotation.class, Injectable.class, DemoAnnotation2.class, DemoWrongAlias.class));
 
 		Mockito.when(reflections.getTypesAnnotatedWith(Inject.class))
 				.thenReturn(Sets.newHashSet(DemoAnnotation.class, Inject.class));
 
 		Mockito.when(reflections.getTypesAnnotatedWith(Alias.class))
 				.thenReturn(Sets.newHashSet(DemoAnnotation.class, Alias.class));
+
+		Set<Method> methods = Sets.newHashSet();
+		methods.addAll(Arrays.asList(AnnotationProcessorTest.class.getDeclaredMethods()));
+		methods.addAll(Arrays.asList(ConfigClass.class.getDeclaredMethods()));
+
+		Mockito.when(reflections.getMethodsAnnotatedWith(Injectable.class))
+				.thenReturn(methods.stream().filter(method -> !method.isSynthetic()).collect(Collectors.toSet()));
+
+		Mockito.when(reflections.getMethodsAnnotatedWith(DemoWrongAlias.class))
+				.thenReturn(Sets.newHashSet(InjectablesWithoutConfiguration.class.getDeclaredMethods()));
 	}
 
 	@AfterEach
@@ -163,6 +178,29 @@ public class AnnotationProcessorHelperTest {
 				.isInjectableMethod(AnnotationProcessorHelperTest.class.getMethod("testIsInjectableMethod")));
 		assertEquals(false, annotationProcessorHelper.isInjectableMethod(
 				AnnotationProcessorTest.class.getMethod("setDemoInjectableThree", DemoInjectableThree.class)));
+	}
+
+	@Test
+	public void testGetComponentClasses() {
+		Set<Class<?>> componentClasses = Sets.newHashSet(DemoInjectableTwo.class);
+
+		assertEquals(true, annotationProcessorHelper.getComponentClasses().containsAll(componentClasses));
+	}
+
+	@Test
+	public void testGetConfigurationClasses() {
+		Set<Class<?>> configurationClasses = Sets.newHashSet(ConfigClass.class);
+
+		assertEquals(true, annotationProcessorHelper.getConfigurationClasses().containsAll(configurationClasses));
+	}
+
+	@Test
+	public void testGetInjectableMethods() {
+		Set<Method> injectableMethods = Arrays.stream(ConfigClass.class.getDeclaredMethods())
+				.filter(method -> !method.isSynthetic()).collect(Collectors.toSet());
+
+		assertEquals(true, annotationProcessorHelper.getInjectableMethods().containsAll(injectableMethods));
+		assertEquals(true, injectableMethods.containsAll(annotationProcessorHelper.getInjectableMethods()));
 	}
 
 }
