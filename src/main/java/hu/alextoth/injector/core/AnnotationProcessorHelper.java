@@ -1,6 +1,8 @@
 package hu.alextoth.injector.core;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -231,6 +233,54 @@ public class AnnotationProcessorHelper {
 	}
 
 	/**
+	 * Returns a set of constructors annotated with {@link Inject} or its
+	 * alternatives.
+	 * 
+	 * @return A set of constructors annotated with {@link Inject} or its
+	 *         alternatives.
+	 */
+	public Set<Constructor<?>> getInjectConstructors() {
+		Set<Constructor<?>> injectConstructors = Sets.newHashSet();
+
+		getInjectAnnotations()
+				.forEach(annotation -> injectConstructors.addAll(getConstructorsAnnotatedWith(annotation)));
+
+		return injectConstructors.stream()
+				.filter(constructor -> canBeUsedAsInjectConstructor(constructor))
+				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns a set of fields annotated with {@link Inject} or its alternatives.
+	 * 
+	 * @return A set of fields annotated with {@link Inject} or its alternatives.
+	 */
+	public Set<Field> getInjectFields() {
+		Set<Field> injectFields = Sets.newHashSet();
+
+		getInjectAnnotations().forEach(annotation -> injectFields.addAll(getFieldsAnnotatedWith(annotation)));
+
+		return injectFields.stream()
+				.filter(field -> canBeUsedAsInjectField(field))
+				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns a set of methods annotated with {@link Inject} or its alternatives.
+	 * 
+	 * @return A set of methods annotated with {@link Inject} or its alternatives.
+	 */
+	public Set<Method> getInjectMethods() {
+		Set<Method> injectMethods = Sets.newHashSet();
+
+		getInjectAnnotations().forEach(annotation -> injectMethods.addAll(getMethodsAnnotatedWith(annotation)));
+
+		return injectMethods.stream()
+				.filter(method -> canBeUsedAsInjectMethod(method))
+				.collect(Collectors.toSet());
+	}
+
+	/**
 	 * Returns a set of annotation types annotated with the given annotation.
 	 * 
 	 * @param annotation
@@ -276,8 +326,29 @@ public class AnnotationProcessorHelper {
 	 * @return A set of methods annotated with the given annotation.
 	 */
 	private Set<Method> getMethodsAnnotatedWith(Class<? extends Annotation> annotation) {
-		return reflections.getMethodsAnnotatedWith(annotation).stream()
+		return reflections.getMethodsAnnotatedWith(annotation);
+	}
+
+	/**
+	 * Returns a set of constructors annotated with the given annotation.
+	 * 
+	 * @param annotation Constructors annotated with this must be returned.
+	 * @return A set of constructors annotated with the given annotation.
+	 */
+	private Set<Constructor<?>> getConstructorsAnnotatedWith(Class<? extends Annotation> annotation) {
+		return reflections.getConstructorsAnnotatedWith(annotation).stream()
+				.map(constructor -> (Constructor<?>) constructor)
 				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns a set of fields annotated with the given annotation.
+	 * 
+	 * @param annotation Fields annotated with this must be returned.
+	 * @return A set of fields annotated with the given annotation.
+	 */
+	private Set<Field> getFieldsAnnotatedWith(Class<? extends Annotation> annotation) {
+		return reflections.getFieldsAnnotatedWith(annotation);
 	}
 
 	/**
@@ -290,6 +361,43 @@ public class AnnotationProcessorHelper {
 	 */
 	private boolean canBeUsedAsInjectableMethod(Method method) {
 		return !Void.TYPE.equals(method.getReturnType()) && isConfigurationClass(method.getDeclaringClass());
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given constructor can be used
+	 * for injection or not.
+	 * 
+	 * @param constructor Constructor to check whether it can be used for injection
+	 *                    or not.
+	 * @return A boolean value indicating whether the given constructor can be used
+	 *         for injection or not.
+	 */
+	private boolean canBeUsedAsInjectConstructor(Constructor<?> constructor) {
+		return isComponentClass(constructor.getDeclaringClass());
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given field can be used for
+	 * injection or not.
+	 * 
+	 * @param field Field to check whether it can be used for injection or not.
+	 * @return A boolean value indicating whether the given field can be used for
+	 *         injection or not.
+	 */
+	private boolean canBeUsedAsInjectField(Field field) {
+		return isComponentClass(field.getDeclaringClass());
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given method can be used for
+	 * injection or not.
+	 * 
+	 * @param method Method to check whether it can be used for injection or not.
+	 * @return A boolean value indicating whether the given method can be used for
+	 *         injection or not.
+	 */
+	private boolean canBeUsedAsInjectMethod(Method method) {
+		return isComponentClass(method.getDeclaringClass());
 	}
 
 }

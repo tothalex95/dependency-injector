@@ -3,6 +3,8 @@ package hu.alextoth.injector.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
@@ -27,10 +29,12 @@ import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoAnnotation2;
+import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
 import hu.alextoth.injector.demo.DemoWrongAlias;
 import hu.alextoth.injector.demo.InjectablesWithoutConfiguration;
+import hu.alextoth.injector.demo.InjectsWithoutComponent;
 
 @ExtendWith(MockitoExtension.class)
 public class AnnotationProcessorHelperTest {
@@ -42,7 +46,7 @@ public class AnnotationProcessorHelperTest {
 	private AnnotationProcessorHelper annotationProcessorHelper;
 
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws NoSuchMethodException, SecurityException, NoSuchFieldException {
 		Mockito.when(reflections.getTypesAnnotatedWith(Component.class))
 				.thenReturn(Sets.newHashSet(DemoAnnotation.class, Component.class, DemoInjectableTwo.class));
 
@@ -67,6 +71,26 @@ public class AnnotationProcessorHelperTest {
 
 		Mockito.when(reflections.getMethodsAnnotatedWith(DemoWrongAlias.class))
 				.thenReturn(Sets.newHashSet(InjectablesWithoutConfiguration.class.getDeclaredMethods()));
+
+		Mockito.when(reflections.getConstructorsAnnotatedWith(Inject.class)).thenReturn(
+				Sets.newHashSet(InjectsWithoutComponent.class.getDeclaredConstructor(DemoInjectableTwo.class)));
+
+		Mockito.when(reflections.getConstructorsAnnotatedWith(DemoAnnotation.class))
+				.thenReturn(Sets.newHashSet(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class)));
+
+		Mockito.when(reflections.getFieldsAnnotatedWith(Inject.class))
+				.thenReturn(Sets.newHashSet(InjectsWithoutComponent.class.getDeclaredField("demoInjectableOne"),
+						AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne")));
+
+		Mockito.when(reflections.getFieldsAnnotatedWith(DemoAnnotation.class))
+				.thenReturn(Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoInjectableFive")));
+
+		Mockito.when(reflections.getMethodsAnnotatedWith(Inject.class)).thenReturn(Sets.newHashSet(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class),
+				InjectsWithoutComponent.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class)));
+
+		Mockito.when(reflections.getMethodsAnnotatedWith(DemoAnnotation.class)).thenReturn(Sets.newHashSet(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class)));
 	}
 
 	@AfterEach
@@ -201,6 +225,34 @@ public class AnnotationProcessorHelperTest {
 
 		assertEquals(true, annotationProcessorHelper.getInjectableMethods().containsAll(injectableMethods));
 		assertEquals(true, injectableMethods.containsAll(annotationProcessorHelper.getInjectableMethods()));
+	}
+
+	@Test
+	public void testGetInjectConstructors() throws NoSuchMethodException, SecurityException {
+		Set<Constructor<?>> injectConstructors = Sets
+				.newHashSet(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class));
+
+		assertEquals(true, annotationProcessorHelper.getInjectConstructors().containsAll(injectConstructors));
+		assertEquals(true, injectConstructors.containsAll(annotationProcessorHelper.getInjectConstructors()));
+	}
+
+	@Test
+	public void testGetInjectFields() throws NoSuchFieldException, SecurityException {
+		Set<Field> injectFields = Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne"),
+				AnnotationProcessorTest.class.getDeclaredField("demoInjectableFive"));
+
+		assertEquals(true, annotationProcessorHelper.getInjectFields().containsAll(injectFields));
+		assertEquals(true, injectFields.containsAll(annotationProcessorHelper.getInjectFields()));
+	}
+
+	@Test
+	public void testGetInjectMethods() throws NoSuchMethodException, SecurityException {
+		Set<Method> injectMethods = Sets.newHashSet(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class),
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class));
+
+		assertEquals(true, annotationProcessorHelper.getInjectMethods().containsAll(injectMethods));
+		assertEquals(true, injectMethods.containsAll(annotationProcessorHelper.getInjectMethods()));
 	}
 
 }
