@@ -8,17 +8,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.reflections.Reflections;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Injectable;
-import hu.alextoth.injector.exception.DependencyAliasResolverException;
 
 /**
  * Class for resolving dependency aliases.
@@ -27,19 +21,10 @@ import hu.alextoth.injector.exception.DependencyAliasResolverException;
  */
 public class DependencyAliasResolver {
 
-	private final Set<Class<?>> aliasAnnotations;
-	private final Set<Class<?>> injectableAnnotations;
+	private final AnnotationProcessorHelper annotationProcessorHelper;
 
-	public DependencyAliasResolver(Reflections reflections) {
-		aliasAnnotations = Sets.newHashSet(Alias.class);
-		aliasAnnotations.addAll(reflections.getTypesAnnotatedWith(Alias.class).stream()
-				.filter(clazz -> clazz.isAnnotation())
-				.collect(Collectors.toSet()));
-		
-		injectableAnnotations = Sets.newHashSet(Injectable.class);
-		injectableAnnotations.addAll(reflections.getTypesAnnotatedWith(Injectable.class).stream()
-				.filter(clazz -> clazz.isAnnotation())
-				.collect(Collectors.toSet()));
+	public DependencyAliasResolver(AnnotationProcessorHelper annotationProcessorHelper) {
+		this.annotationProcessorHelper = annotationProcessorHelper;
 	}
 
 	/**
@@ -76,7 +61,7 @@ public class DependencyAliasResolver {
 		List<String> aliases = Lists.newArrayList();
 
 		for (Annotation annotation : method.getAnnotations()) {
-			if (injectableAnnotations.contains(annotation.annotationType())) {
+			if (annotationProcessorHelper.isInjectableAnnotation(annotation.annotationType())) {
 				aliases.addAll(extractAliasValues(annotation));
 				break;
 			}
@@ -96,7 +81,7 @@ public class DependencyAliasResolver {
 		String alias = Alias.DEFAULT_ALIAS;
 
 		for (Annotation annotation : element.getAnnotations()) {
-			if (aliasAnnotations.contains(annotation.annotationType())) {
+			if (annotationProcessorHelper.isAliasAnnotation(annotation.annotationType())) {
 				alias = extractAliasValue(annotation);
 				break;
 			}
@@ -111,9 +96,8 @@ public class DependencyAliasResolver {
 	 * @param annotation Annotation instance of which the alias value must be
 	 *                   extracted.
 	 * @return The extracted alias value of the given annotation instance.
-	 * @throws DependencyAliasResolverException If the annotation instance hasn't
-	 *                                          got an attribute containing alias
-	 *                                          value.
+	 * @throws IllegalArgumentException If the annotation instance hasn't got an
+	 *                                  attribute containing alias value.
 	 */
 	private String extractAliasValue(Annotation annotation) {
 		Class<?> aliasClass = annotation.annotationType();
@@ -129,7 +113,7 @@ public class DependencyAliasResolver {
 			return String.valueOf(aliasValueAttribute.invoke(aliasInstance));
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			throw new DependencyAliasResolverException(
+			throw new IllegalArgumentException(
 					String.format("Annotation %s must have '%s' attribute to be used as alias.", aliasClass.getName(),
 							aliasValueAttributeName),
 					e);
@@ -143,9 +127,9 @@ public class DependencyAliasResolver {
 	 *                   must be extracted.
 	 * @return A list of the extracted dependency alias values of the given
 	 *         annotation instance.
-	 * @throws DependencyAliasResolverException If the annotation instance hasn't
-	 *                                          got an attribute containing
-	 *                                          dependency alias values.
+	 * @throws IllegalArgumentException If the annotation instance hasn't got an
+	 *                                  attribute containing dependency alias
+	 *                                  values.
 	 */
 	private List<String> extractAliasValues(Annotation annotation) {
 		List<String> aliases = Lists.newArrayList();
@@ -163,7 +147,7 @@ public class DependencyAliasResolver {
 			aliases.addAll(convertAliasValuesToString(aliasAttribute.invoke(injectableInstance)));
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			throw new DependencyAliasResolverException(
+			throw new IllegalArgumentException(
 					String.format("Annotation %s must have '%s' attribute to be used as injectable.",
 							injectableClass.getName(), aliasAttributeName),
 					e);

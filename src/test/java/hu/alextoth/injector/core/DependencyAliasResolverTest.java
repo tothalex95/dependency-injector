@@ -11,53 +11,43 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.reflections.Reflections;
-
-import com.google.common.collect.Sets;
 
 import hu.alextoth.injector.annotation.Alias;
-import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
-import hu.alextoth.injector.demo.DemoAnnotation2;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
 import hu.alextoth.injector.demo.DemoWrongAlias;
 import hu.alextoth.injector.demo.DemoWrongAlias2;
 import hu.alextoth.injector.demo.InjectablesWithoutConfiguration;
 import hu.alextoth.injector.demo.InjectsWithoutComponent;
-import hu.alextoth.injector.exception.DependencyAliasResolverException;
 
 @ExtendWith(MockitoExtension.class)
 public class DependencyAliasResolverTest {
 
 	@Mock
-	private Reflections reflections;
+	private AnnotationProcessorHelper annotationProcessorHelper;
 
+	@InjectMocks
 	private DependencyAliasResolver dependencyAliasResolver;
 
 	@BeforeEach
 	public void setUp() {
-		Mockito.when(reflections.getTypesAnnotatedWith(Alias.class))
-				.thenReturn(Sets.newHashSet(DemoAnnotation.class, DemoWrongAlias.class));
-		Mockito.when(reflections.getTypesAnnotatedWith(Injectable.class))
-				.thenReturn(Sets.newHashSet(DemoAnnotation.class, DemoAnnotation2.class, DemoWrongAlias.class,
-						DemoWrongAlias2.class));
+		Mockito.when(annotationProcessorHelper.isAliasAnnotation(Alias.class)).thenReturn(true);
+		Mockito.when(annotationProcessorHelper.isAliasAnnotation(DemoAnnotation.class)).thenReturn(true);
+		Mockito.when(annotationProcessorHelper.isAliasAnnotation(DemoWrongAlias.class)).thenReturn(true);
 
-		dependencyAliasResolver = new DependencyAliasResolver(reflections);
+		Mockito.when(annotationProcessorHelper.isInjectableAnnotation(DemoAnnotation.class)).thenReturn(true);
+		Mockito.when(annotationProcessorHelper.isInjectableAnnotation(DemoWrongAlias.class)).thenReturn(true);
+		Mockito.when(annotationProcessorHelper.isInjectableAnnotation(DemoWrongAlias2.class)).thenReturn(true);
 	}
 
 	@AfterEach
 	public void tearDown() {
-		InOrder inOrder = Mockito.inOrder(reflections);
-
-		inOrder.verify(reflections).getTypesAnnotatedWith(Alias.class);
-		inOrder.verify(reflections).getTypesAnnotatedWith(Injectable.class);
-
-		Mockito.reset(reflections);
+		Mockito.reset(annotationProcessorHelper);
 	}
 
 	@Test
@@ -78,8 +68,8 @@ public class DependencyAliasResolverTest {
 	public void testGetAliasWithWrongAnnotation() throws NoSuchMethodException, SecurityException {
 		Parameter parameter = InjectsWithoutComponent.class.getMethod("wrongAliasSetter", DemoInjectableThree.class)
 				.getParameters()[0];
-		
-		assertThrows(DependencyAliasResolverException.class, () -> dependencyAliasResolver.getAlias(parameter));
+
+		assertThrows(IllegalArgumentException.class, () -> dependencyAliasResolver.getAlias(parameter));
 	}
 
 	@Test
@@ -97,11 +87,11 @@ public class DependencyAliasResolverTest {
 	public void testGetAliasesWithWrongAnnotation() throws NoSuchMethodException, SecurityException {
 		Method method = InjectablesWithoutConfiguration.class.getMethod("demoInjectableThree");
 
-		assertThrows(DependencyAliasResolverException.class, () -> dependencyAliasResolver.getAliases(method));
+		assertThrows(IllegalArgumentException.class, () -> dependencyAliasResolver.getAliases(method));
 
 		Method method2 = InjectablesWithoutConfiguration.class.getMethod("demoInjectableTwo");
 
-		assertThrows(DependencyAliasResolverException.class, () -> dependencyAliasResolver.getAliases(method2));
+		assertThrows(IllegalArgumentException.class, () -> dependencyAliasResolver.getAliases(method2));
 	}
 
 	@Test
