@@ -205,6 +205,34 @@ public class AnnotationProcessorHelperTest {
 	}
 
 	@Test
+	public void testIsInjectConstructor() throws NoSuchMethodException, SecurityException {
+		assertEquals(true, annotationProcessorHelper
+				.isInjectConstructor(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class)));
+		assertEquals(false, annotationProcessorHelper
+				.isInjectConstructor(InjectsWithoutComponent.class.getDeclaredConstructor(DemoInjectableTwo.class)));
+	}
+
+	@Test
+	public void testIsInjectField() throws NoSuchFieldException, SecurityException {
+		assertEquals(true, annotationProcessorHelper
+				.isInjectField(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne")));
+		assertEquals(true, annotationProcessorHelper
+				.isInjectField(AnnotationProcessorTest.class.getDeclaredField("demoInjectableFive")));
+		assertEquals(false, annotationProcessorHelper
+				.isInjectField(InjectsWithoutComponent.class.getDeclaredField("demoInjectableOne")));
+	}
+
+	@Test
+	public void testIsInjectMethod() throws NoSuchMethodException, SecurityException {
+		assertEquals(true, annotationProcessorHelper.isInjectMethod(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class)));
+		assertEquals(true, annotationProcessorHelper.isInjectMethod(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class)));
+		assertEquals(false, annotationProcessorHelper.isInjectMethod(
+				InjectsWithoutComponent.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class)));
+	}
+
+	@Test
 	public void testGetComponentClasses() {
 		Set<Class<?>> componentClasses = Sets.newHashSet(DemoInjectableTwo.class);
 

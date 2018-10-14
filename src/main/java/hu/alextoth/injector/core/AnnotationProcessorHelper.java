@@ -191,6 +191,55 @@ public class AnnotationProcessorHelper {
 	}
 
 	/**
+	 * Returns a boolean value indicating whether the given constructor must be used
+	 * for injection or not.
+	 * 
+	 * @param constructor Constructor to check whether it must be used for injection
+	 *                    or not.
+	 * @return A boolean value indicating whether the given constructor must be used
+	 *         for injection or not.
+	 */
+	public boolean isInjectConstructor(Constructor<?> constructor) {
+		if (!canBeUsedAsInjectConstructor(constructor)) {
+			return false;
+		}
+		return Arrays.stream(constructor.getAnnotations())
+				.anyMatch(annotation -> isInjectAnnotation(annotation.annotationType()));
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given field must be used for
+	 * injection or not.
+	 * 
+	 * @param field Field to check whether it must be used for injection or not.
+	 * @return A boolean value indicating whether the given field must be used for
+	 *         injection or not.
+	 */
+	public boolean isInjectField(Field field) {
+		if (!canBeUsedAsInjectField(field)) {
+			return false;
+		}
+		return Arrays.stream(field.getAnnotations())
+				.anyMatch(annotation -> isInjectAnnotation(annotation.annotationType()));
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given method must be used for
+	 * injection or not.
+	 * 
+	 * @param method Method to check whether it must be used for injection or not.
+	 * @return A boolean value indicating whether the given method must be used for
+	 *         injection or not.
+	 */
+	public boolean isInjectMethod(Method method) {
+		if (!canBeUsedAsInjectMethod(method)) {
+			return false;
+		}
+		return Arrays.stream(method.getAnnotations())
+				.anyMatch(annotation -> isInjectAnnotation(annotation.annotationType()));
+	}
+
+	/**
 	 * Returns a set of component classes.
 	 * 
 	 * @return A set of component classes.
