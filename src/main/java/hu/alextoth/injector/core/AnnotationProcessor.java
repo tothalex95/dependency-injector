@@ -6,12 +6,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.List;
 import java.util.Set;
 
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Injectable;
+import hu.alextoth.injector.core.helper.DependencySorter;
 import hu.alextoth.injector.exception.AnnotationProcessingException;
 
 /**
@@ -25,12 +27,15 @@ public class AnnotationProcessor {
 	private final AnnotationProcessorHelper annotationProcessorHelper;
 	private final DependencyHandler dependencyHandler;
 	private final DependencyAliasResolver dependencyAliasResolver;
+	private final DependencySorter dependencySorter;
 
 	public AnnotationProcessor(AnnotationProcessorHelper annotationProcessorHelper, DependencyHandler dependencyHandler,
 			DependencyAliasResolver dependencyAliasResolver) {
 		this.annotationProcessorHelper = annotationProcessorHelper;
 		this.dependencyHandler = dependencyHandler;
 		this.dependencyAliasResolver = dependencyAliasResolver;
+
+		dependencySorter = new DependencySorter();
 	}
 
 	/**
@@ -52,9 +57,10 @@ public class AnnotationProcessor {
 	 * any purpose.
 	 */
 	private void processConfigurationsAndInjectables() {
-		Set<Method> injectables = annotationProcessorHelper.getInjectableMethods();
+		Set<Method> injectableMethods = annotationProcessorHelper.getInjectableMethods();
+		List<Method> sortedInjectableMethods = dependencySorter.getSortedInjectableMethods(injectableMethods);
 
-		for (Method method : injectables) {
+		for (Method method : sortedInjectableMethods) {
 			Class<?> configurationClass = method.getDeclaringClass();
 			if (!annotationProcessorHelper.isConfigurationClass(configurationClass)) {
 				continue;
