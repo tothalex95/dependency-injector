@@ -38,7 +38,7 @@ public class DependencyInjector {
 
 		DependencyAliasResolver dependencyAliasResolver = new DependencyAliasResolver(annotationProcessorHelper);
 
-		dependencyHandler = new DependencyHandler(reflections, dependencyAliasResolver);
+		dependencyHandler = new DependencyHandler(reflections, annotationProcessorHelper, dependencyAliasResolver);
 		annotationProcessor = new AnnotationProcessor(annotationProcessorHelper, dependencyHandler,
 				dependencyAliasResolver);
 	}

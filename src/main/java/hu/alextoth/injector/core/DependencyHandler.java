@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 import hu.alextoth.injector.annotation.Alias;
-import hu.alextoth.injector.annotation.Injectable;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 
@@ -25,12 +24,15 @@ public class DependencyHandler {
 	private final Map<Class<?>, Map<String, Object>> dependencies;
 
 	private final Reflections reflections;
+	private final AnnotationProcessorHelper annotationProcessorHelper;
 	private final DependencyAliasResolver dependencyAliasResolver;
 
-	public DependencyHandler(Reflections reflections, DependencyAliasResolver dependencyAliasResolver) {
+	public DependencyHandler(Reflections reflections, AnnotationProcessorHelper annotationProcessorHelper,
+			DependencyAliasResolver dependencyAliasResolver) {
 		dependencies = new HashMap<>();
 
 		this.reflections = reflections;
+		this.annotationProcessorHelper = annotationProcessorHelper;
 		this.dependencyAliasResolver = dependencyAliasResolver;
 	}
 
@@ -100,7 +102,7 @@ public class DependencyHandler {
 		Enhancer enhancer = new Enhancer();
 		enhancer.setSuperclass(clazz);
 		enhancer.setCallback((MethodInterceptor) (obj, method, args, proxy) -> {
-			if (method.isAnnotationPresent(Injectable.class)) {
+			if (annotationProcessorHelper.isInjectableMethod(method)) {
 				String[] aliases = dependencyAliasResolver.getAliases(method);
 
 				if (hasInstanceOf(method.getReturnType(), aliases[0])) {

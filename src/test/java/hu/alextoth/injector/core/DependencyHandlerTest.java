@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.reflections.Reflections;
@@ -34,18 +34,17 @@ public class DependencyHandlerTest {
 	private Reflections reflections;
 
 	@Mock
+	private AnnotationProcessorHelper annotationProcessorHelper;
+
+	@Mock
 	private DependencyAliasResolver dependencyAliasResolver;
 
+	@InjectMocks
 	private DependencyHandler dependencyHandler;
-
-	@BeforeEach
-	public void setUp() {
-		dependencyHandler = new DependencyHandler(reflections, dependencyAliasResolver);
-	}
 
 	@AfterEach
 	public void tearDown() {
-		Mockito.reset(reflections, dependencyAliasResolver);
+		Mockito.reset(reflections, annotationProcessorHelper, dependencyAliasResolver);
 	}
 
 	@Test
