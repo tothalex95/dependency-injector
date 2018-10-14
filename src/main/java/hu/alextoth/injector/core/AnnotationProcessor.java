@@ -57,16 +57,11 @@ public class AnnotationProcessor {
 	 * any purpose.
 	 */
 	private void processConfigurationsAndInjectables() {
-		Set<Method> injectableMethods = annotationProcessorHelper.getInjectableMethods();
-		List<Method> sortedInjectableMethods = dependencySorter.getSortedInjectableMethods(injectableMethods);
+		List<Method> sortedInjectableMethods = dependencySorter
+				.getSortedInjectableMethods(annotationProcessorHelper.getInjectableMethods());
 
 		for (Method method : sortedInjectableMethods) {
-			Class<?> configurationClass = method.getDeclaringClass();
-			if (!annotationProcessorHelper.isConfigurationClass(configurationClass)) {
-				continue;
-			}
-
-			Object configurationInstance = dependencyHandler.getInstanceOf(configurationClass);
+			Object configurationInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
 
 			method.setAccessible(true);
 			Object[] parameterInstances = resolveParameters(method);
@@ -105,16 +100,11 @@ public class AnnotationProcessor {
 		Set<Constructor<?>> constructorLevelInjections = annotationProcessorHelper.getInjectConstructors();
 
 		for (Constructor<?> constructor : constructorLevelInjections) {
-			Class<?> componentClass = constructor.getDeclaringClass();
-			if (!annotationProcessorHelper.isComponentClass(componentClass)) {
-				continue;
-			}
-
 			constructor.setAccessible(true);
 			Object[] parameterInstances = resolveParameters(constructor);
 			try {
 				Object componentInstance = constructor.newInstance(parameterInstances);
-				dependencyHandler.registerInstanceOf(componentClass, componentInstance);
+				dependencyHandler.registerInstanceOf(constructor.getDeclaringClass(), componentInstance);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
 				throw new AnnotationProcessingException(
@@ -132,12 +122,7 @@ public class AnnotationProcessor {
 		Set<Field> fieldLevelInjections = annotationProcessorHelper.getInjectFields();
 
 		for (Field field : fieldLevelInjections) {
-			Class<?> componentClass = field.getDeclaringClass();
-			if (!annotationProcessorHelper.isComponentClass(componentClass)) {
-				continue;
-			}
-
-			Object componentInstance = dependencyHandler.getInstanceOf(componentClass);
+			Object componentInstance = dependencyHandler.getInstanceOf(field.getDeclaringClass());
 
 			field.setAccessible(true);
 			try {
@@ -160,12 +145,7 @@ public class AnnotationProcessor {
 		Set<Method> methodLevelInjections = annotationProcessorHelper.getInjectMethods();
 
 		for (Method method : methodLevelInjections) {
-			Class<?> componentClass = method.getDeclaringClass();
-			if (!annotationProcessorHelper.isComponentClass(componentClass)) {
-				continue;
-			}
-
-			Object componentInstance = dependencyHandler.getInstanceOf(componentClass);
+			Object componentInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
 
 			method.setAccessible(true);
 			Object[] parameterInstances = resolveParameters(method);
