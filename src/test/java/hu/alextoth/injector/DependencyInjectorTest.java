@@ -30,6 +30,9 @@ public class DependencyInjectorTest {
 	@Inject
 	private static DemoInjectableNine demoInjectableNine;
 
+	@DemoAnnotation(name = "nine")
+	private static DemoInjectableNine demoInjectableNine2;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -44,6 +47,7 @@ public class DependencyInjectorTest {
 		assertNotNull(demoInjectableTwo);
 		assertNotNull(demoInjectableThree);
 		assertNotNull(demoInjectableNine);
+		assertNotNull(demoInjectableNine2);
 
 		assertEquals(demoInjectableOne.getDemoInteger(), Integer.valueOf(2018));
 		assertEquals(demoInjectableOne.getDemoString(), "namedDependency");
@@ -52,6 +56,8 @@ public class DependencyInjectorTest {
 		assertEquals(demoInjectableTwo, demoInjectableThree.getDemoInjectableTwo());
 
 		assertEquals(demoInjectableOne, demoInjectableNine.getDemoInjectableOne());
+
+		assertEquals(demoInjectableOne, demoInjectableNine2.getDemoInjectableOne());
 	}
 
 	@Test

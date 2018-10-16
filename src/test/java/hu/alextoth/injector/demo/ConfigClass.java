@@ -25,4 +25,10 @@ public class ConfigClass {
 		return new DemoInjectableNine(getNamedDemoInjectableOne());
 	}
 
+	@DemoAnnotation(names = "nine")
+	public DemoInjectableNine getDemoInjectableNine2(
+			@DemoAnnotation(name = "alias1") DemoInjectableOne demoInjectableOne) {
+		return new DemoInjectableNine(demoInjectableOne);
+	}
+
 }
