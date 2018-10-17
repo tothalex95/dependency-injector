@@ -1,7 +1,6 @@
 package hu.alextoth.injector.core;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 import hu.alextoth.injector.annotation.Alias;
+import hu.alextoth.injector.util.ClassUtils;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 
@@ -60,15 +60,10 @@ public class DependencyHandler {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getInstanceOf(Class<T> clazz, String alias) {
-		Map<String, Object> namedDependencies = dependencies.get(clazz);
-
-		T instance = null;
-
-		if (namedDependencies == null || (instance = (T) namedDependencies.get(alias)) == null) {
-			instance = createInstanceOf(clazz, alias);
+		if (hasInstanceOf(clazz, alias)) {
+			return (T) dependencies.get(clazz).get(alias);
 		}
-
-		return instance;
+		return createInstanceOf(clazz, alias);
 	}
 
 	/**
@@ -163,29 +158,23 @@ public class DependencyHandler {
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> Constructor<? extends T> getSuitableConstructor(Class<T> clazz) {
-		Constructor<? extends T> constructor = null;
-
-		if (Modifier.isInterface(clazz.getModifiers()) || Modifier.isAbstract(clazz.getModifiers())) {
-			List<Class<? extends T>> suitableClasses = reflections.getSubTypesOf(clazz).stream()
-					.filter(c -> !Modifier.isInterface(c.getModifiers()) && !Modifier.isAbstract(c.getModifiers()))
-					.collect(Collectors.toList());
-
-			int numberOfSuitableClasses = suitableClasses.size();
-			if (numberOfSuitableClasses == 0) {
-				throw new IllegalArgumentException(String.format("Cannot find suitable implementation for %s", clazz));
-			}
-			if (numberOfSuitableClasses > 1) {
-				throw new IllegalArgumentException(
-						String.format("Found too many suitable implementations for %s", clazz));
-			}
-
-			constructor = getSuitableConstructor(suitableClasses.get(0));
-		} else {
-			Constructor<T>[] declaredConstuctors = (Constructor<T>[]) clazz.getDeclaredConstructors();
-			constructor = declaredConstuctors[0];
+		if (ClassUtils.isConcrete(clazz)) {
+			return (Constructor<? extends T>) clazz.getDeclaredConstructors()[0];
 		}
 
-		return constructor;
+		List<Class<? extends T>> suitableClasses = reflections.getSubTypesOf(clazz).stream()
+				.filter(c -> ClassUtils.isConcrete(c))
+				.collect(Collectors.toList());
+
+		int numberOfSuitableClasses = suitableClasses.size();
+		if (numberOfSuitableClasses == 0) {
+			throw new IllegalArgumentException(String.format("Cannot find suitable implementation for %s", clazz));
+		}
+		if (numberOfSuitableClasses > 1) {
+			throw new IllegalArgumentException(String.format("Found too many suitable implementations for %s", clazz));
+		}
+
+		return getSuitableConstructor(suitableClasses.get(0));
 	}
 
 }
