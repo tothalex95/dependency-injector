@@ -10,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>10</jdk.version>
+		<java.version>1.8</java.version>
 
 		<!-- Maven Plugins -->
 		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
@@ -22,6 +22,7 @@
 		<mockito.version>2.21.0</mockito.version>
 		<reflections.version>0.9.11</reflections.version>
 		<slf4j.version>1.7.25</slf4j.version>
+		<cglib.version>3.2.8</cglib.version>
 	</properties>
 
 	<build>
@@ -31,15 +32,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<release>${jdk.version}</release>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.ow2.asm</groupId>
-						<artifactId>asm</artifactId>
-						<version>6.2</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -102,7 +97,7 @@
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
-			<version>3.2.8</version>
+			<version>${cglib.version}</version>
 		</dependency>
 
 	</dependencies>

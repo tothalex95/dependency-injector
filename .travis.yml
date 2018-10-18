@@ -1,5 +1,5 @@
 language: java
-jdk: oraclejdk10
+jdk: oraclejdk8
 install: mvn clean install -DskipTests=true
 script: mvn test jacoco:report
 after_success: mvn sonar:sonar -Dsonar.login=$sonarRepoToken -Dsonar.organization=$sonarOrganization -Dsonar.host.url=$sonarHostUrl
