@@ -163,7 +163,7 @@ public class DependencyHandler {
 		}
 
 		List<Class<? extends T>> suitableClasses = reflections.getSubTypesOf(clazz).stream()
-				.filter(c -> ClassUtils.isConcrete(c))
+				.filter(ClassUtils::isConcrete)
 				.collect(Collectors.toList());
 
 		int numberOfSuitableClasses = suitableClasses.size();

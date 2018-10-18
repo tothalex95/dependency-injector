@@ -277,7 +277,7 @@ public class AnnotationProcessorHelper {
 		getInjectableAnnotations().forEach(annotation -> injectableMethods.addAll(getMethodsAnnotatedWith(annotation)));
 
 		return injectableMethods.stream()
-				.filter(method -> canBeUsedAsInjectableMethod(method))
+				.filter(this::canBeUsedAsInjectableMethod)
 				.collect(Collectors.toSet());
 	}
 
@@ -295,7 +295,7 @@ public class AnnotationProcessorHelper {
 				.forEach(annotation -> injectConstructors.addAll(getConstructorsAnnotatedWith(annotation)));
 
 		return injectConstructors.stream()
-				.filter(constructor -> canBeUsedAsInjectConstructor(constructor))
+				.filter(this::canBeUsedAsInjectConstructor)
 				.collect(Collectors.toSet());
 	}
 
@@ -310,7 +310,7 @@ public class AnnotationProcessorHelper {
 		getInjectAnnotations().forEach(annotation -> injectFields.addAll(getFieldsAnnotatedWith(annotation)));
 
 		return injectFields.stream()
-				.filter(field -> canBeUsedAsInjectField(field))
+				.filter(this::canBeUsedAsInjectField)
 				.collect(Collectors.toSet());
 	}
 
@@ -325,7 +325,7 @@ public class AnnotationProcessorHelper {
 		getInjectAnnotations().forEach(annotation -> injectMethods.addAll(getMethodsAnnotatedWith(annotation)));
 
 		return injectMethods.stream()
-				.filter(method -> canBeUsedAsInjectMethod(method))
+				.filter(this::canBeUsedAsInjectMethod)
 				.collect(Collectors.toSet());
 	}
 
@@ -347,7 +347,7 @@ public class AnnotationProcessorHelper {
 
 		annotatedAnnotations
 				.addAll(reflections.getTypesAnnotatedWith(annotation).stream()
-						.filter(clazz -> clazz.isAnnotation())
+						.filter(Class::isAnnotation)
 						.map(clazz -> (Class<? extends Annotation>) clazz)
 						.collect(Collectors.toSet()));
 

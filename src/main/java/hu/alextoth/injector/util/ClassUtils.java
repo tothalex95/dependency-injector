@@ -12,6 +12,9 @@ import java.util.Map;
  */
 public final class ClassUtils {
 
+	private ClassUtils() {
+	}
+
 	private static final Map<Class<?>, Object> PRIMITIVE_DEFAULT_VALUE_MAP;
 
 	static {
