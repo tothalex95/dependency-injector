@@ -31,4 +31,9 @@ public class ConfigClass {
 		return new DemoInjectableNine(demoInjectableOne);
 	}
 
+	@Injectable(alias = "getShort")
+	public short getShort() {
+		return (short) 2018;
+	}
+
 }

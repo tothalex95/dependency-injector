@@ -33,6 +33,13 @@ public class DependencyInjectorTest {
 	@DemoAnnotation(name = "nine")
 	private static DemoInjectableNine demoInjectableNine2;
 
+	@Inject
+	@Alias("getShort")
+	private static short demoShort;
+
+	@Inject
+	private static long demoLong;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -58,6 +65,9 @@ public class DependencyInjectorTest {
 		assertEquals(demoInjectableOne, demoInjectableNine.getDemoInjectableOne());
 
 		assertEquals(demoInjectableOne, demoInjectableNine2.getDemoInjectableOne());
+
+		assertEquals((short) 2018, demoShort);
+		assertEquals(0L, demoLong);
 	}
 
 	@Test

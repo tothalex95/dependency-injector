@@ -82,33 +82,13 @@ public class DependencyHandler {
 	 * @param alias Alias for the requested instance.
 	 * @return An instance of the given class.
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> T createInstanceOf(Class<T> clazz, String alias) {
 		T instance = null;
 
-		Constructor<? extends T> constructor = getSuitableConstructor(clazz);
-
-		Parameter[] parameters = constructor.getParameters();
-		Object[] parameterInstances = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
-					dependencyAliasResolver.getAlias(parameters[i]));
+		if ((instance = ClassUtils.getDefaultValueForPrimitive(clazz)) == null) {
+			instance = createProxyOf(clazz);
 		}
 
-		Enhancer enhancer = new Enhancer();
-		enhancer.setSuperclass(clazz);
-		enhancer.setCallback((MethodInterceptor) (obj, method, args, proxy) -> {
-			if (annotationProcessorHelper.isInjectableMethod(method)) {
-				String[] aliases = dependencyAliasResolver.getAliases(method);
-
-				if (hasInstanceOf(method.getReturnType(), aliases[0])) {
-					return getInstanceOf(method.getReturnType(), aliases[0]);
-				}
-			}
-			return proxy.invokeSuper(obj, args);
-		});
-
-		instance = (T) enhancer.create(constructor.getParameterTypes(), parameterInstances);
 		registerInstanceOf(clazz, instance, alias);
 
 		return instance;
@@ -186,6 +166,39 @@ public class DependencyHandler {
 		}
 
 		return getSuitableConstructor(suitableClasses.get(0));
+	}
+
+	/**
+	 * Returns a proxy of the given class.
+	 * 
+	 * @param clazz Class of which a proxy must be returned.
+	 * @return A proxy of the given class.
+	 */
+	@SuppressWarnings("unchecked")
+	private <T> T createProxyOf(Class<T> clazz) {
+		Constructor<? extends T> constructor = getSuitableConstructor(clazz);
+
+		Parameter[] parameters = constructor.getParameters();
+		Object[] parameterInstances = new Object[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
+					dependencyAliasResolver.getAlias(parameters[i]));
+		}
+
+		Enhancer enhancer = new Enhancer();
+		enhancer.setSuperclass(clazz);
+		enhancer.setCallback((MethodInterceptor) (obj, method, args, proxy) -> {
+			if (annotationProcessorHelper.isInjectableMethod(method)) {
+				String[] aliases = dependencyAliasResolver.getAliases(method);
+
+				if (hasInstanceOf(method.getReturnType(), aliases[0])) {
+					return getInstanceOf(method.getReturnType(), aliases[0]);
+				}
+			}
+			return proxy.invokeSuper(obj, args);
+		});
+
+		return (T) enhancer.create(constructor.getParameterTypes(), parameterInstances);
 	}
 
 }
