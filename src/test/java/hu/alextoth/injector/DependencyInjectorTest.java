@@ -40,6 +40,9 @@ public class DependencyInjectorTest {
 	@Inject
 	private static long demoLong;
 
+	@Inject
+	private static String demoString;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -68,6 +71,7 @@ public class DependencyInjectorTest {
 
 		assertEquals((short) 2018, demoShort);
 		assertEquals(0L, demoLong);
+		assertEquals("", demoString);
 	}
 
 	@Test

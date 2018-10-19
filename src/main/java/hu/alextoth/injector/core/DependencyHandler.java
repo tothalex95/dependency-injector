@@ -1,6 +1,8 @@
 package hu.alextoth.injector.core;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -83,10 +85,10 @@ public class DependencyHandler {
 	 * @return An instance of the given class.
 	 */
 	public <T> T createInstanceOf(Class<T> clazz, String alias) {
-		T instance = null;
+		T instance = ClassUtils.getDefaultValueForPrimitive(clazz);
 
-		if ((instance = ClassUtils.getDefaultValueForPrimitive(clazz)) == null) {
-			instance = createProxyOf(clazz);
+		if (instance == null) {
+			instance = Modifier.isFinal(clazz.getModifiers()) ? createNewInstanceOf(clazz) : createProxyOf(clazz);
 		}
 
 		registerInstanceOf(clazz, instance, alias);
@@ -166,6 +168,30 @@ public class DependencyHandler {
 		}
 
 		return getSuitableConstructor(suitableClasses.get(0));
+	}
+
+	/**
+	 * Returns a new instance of the given class.
+	 * 
+	 * @param clazz Class of which a new instance must be returned.
+	 * @return A new instance of the given class.
+	 */
+	private <T> T createNewInstanceOf(Class<T> clazz) {
+		Constructor<? extends T> constructor = getSuitableConstructor(clazz);
+
+		Parameter[] parameters = constructor.getParameters();
+		Object[] parameterInstances = new Object[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
+					dependencyAliasResolver.getAlias(parameters[i]));
+		}
+
+		try {
+			return constructor.newInstance(parameterInstances);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			throw new IllegalArgumentException(String.format("Cannot instantiate %s", clazz), e);
+		}
 	}
 
 	/**
