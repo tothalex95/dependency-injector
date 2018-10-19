@@ -2,6 +2,7 @@ package hu.alextoth.injector.core;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +160,17 @@ public class DependencyHandler {
 	@SuppressWarnings("unchecked")
 	private <T> Constructor<? extends T> getSuitableConstructor(Class<T> clazz) {
 		if (ClassUtils.isConcrete(clazz)) {
-			return (Constructor<? extends T>) clazz.getDeclaredConstructors()[0];
+			Constructor<? extends T>[] constructors = (Constructor<? extends T>[]) clazz.getDeclaredConstructors();
+			Arrays.sort(constructors, (constructor1, constructor2) -> {
+				if (constructor1.getParameterCount() > constructor2.getParameterCount()) {
+					return 1;
+				}
+				if (constructor1.getParameterCount() < constructor2.getParameterCount()) {
+					return -1;
+				}
+				return 0;
+			});
+			return constructors[0];
 		}
 
 		List<Class<? extends T>> suitableClasses = reflections.getSubTypesOf(clazz).stream()
