@@ -43,6 +43,12 @@ public class DependencyInjectorTest {
 	@Inject
 	private static String demoString;
 
+	@Inject
+	private static byte[] demoPrimitiveArray;
+
+	@Inject
+	private static Object[] demoObjectArray;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -59,8 +65,8 @@ public class DependencyInjectorTest {
 		assertNotNull(demoInjectableNine);
 		assertNotNull(demoInjectableNine2);
 
-		assertEquals(demoInjectableOne.getDemoInteger(), Integer.valueOf(2018));
-		assertEquals(demoInjectableOne.getDemoString(), "namedDependency");
+		assertEquals(Integer.valueOf(2018), demoInjectableOne.getDemoInteger());
+		assertEquals("namedDependency", demoInjectableOne.getDemoString());
 
 		assertEquals(demoInjectableOne, demoInjectableTwo.getDemoInjectableOne());
 		assertEquals(demoInjectableTwo, demoInjectableThree.getDemoInjectableTwo());
@@ -72,6 +78,11 @@ public class DependencyInjectorTest {
 		assertEquals((short) 2018, demoShort);
 		assertEquals(0L, demoLong);
 		assertEquals("", demoString);
+
+		assertNotNull(demoPrimitiveArray);
+		assertNotNull(demoObjectArray);
+		assertEquals(0, demoPrimitiveArray.length);
+		assertEquals(0, demoObjectArray.length);
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package hu.alextoth.injector.core;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -84,11 +85,18 @@ public class DependencyHandler {
 	 * @param alias Alias for the requested instance.
 	 * @return An instance of the given class.
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T createInstanceOf(Class<T> clazz, String alias) {
 		T instance = ClassUtils.getDefaultValueForPrimitive(clazz);
 
 		if (instance == null) {
-			instance = Modifier.isFinal(clazz.getModifiers()) ? createNewInstanceOf(clazz) : createProxyOf(clazz);
+			if (clazz.isArray()) {
+				instance = (T) createArrayOf(clazz.getComponentType());
+			} else if (Modifier.isFinal(clazz.getModifiers())) {
+				instance = createNewInstanceOf(clazz);
+			} else {
+				instance = createProxyOf(clazz);
+			}
 		}
 
 		registerInstanceOf(clazz, instance, alias);
@@ -168,6 +176,17 @@ public class DependencyHandler {
 		}
 
 		return getSuitableConstructor(suitableClasses.get(0));
+	}
+
+	/**
+	 * Returns an array of the given class.
+	 * 
+	 * @param clazz Class of which an array must be returned.
+	 * @return An array of the given class.
+	 */
+	@SuppressWarnings("unchecked")
+	private <T> T createArrayOf(Class<T> clazz) {
+		return (T) Array.newInstance(clazz, 0);
 	}
 
 	/**
