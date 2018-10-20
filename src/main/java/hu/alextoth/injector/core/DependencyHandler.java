@@ -2,6 +2,7 @@ package hu.alextoth.injector.core;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -113,6 +114,22 @@ public class DependencyHandler {
 	}
 
 	/**
+	 * Returns instances of the given executable's parameters.
+	 * 
+	 * @param executable Executable of which parameters must be resolved.
+	 * @return Instances of the given executable's parameters.
+	 */
+	public Object[] resolveParametersOf(Executable executable) {
+		Parameter[] parameters = executable.getParameters();
+		Object[] parameterInstances = new Object[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
+					dependencyAliasResolver.getAlias(parameters[i]));
+		}
+		return parameterInstances;
+	}
+
+	/**
 	 * Registers an instance for the given class with the given aliases.
 	 * 
 	 * @param clazz    Class for which the instance must be registered.
@@ -198,12 +215,7 @@ public class DependencyHandler {
 	private <T> T createNewInstanceOf(Class<T> clazz) {
 		Constructor<? extends T> constructor = getSuitableConstructor(clazz);
 
-		Parameter[] parameters = constructor.getParameters();
-		Object[] parameterInstances = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
-					dependencyAliasResolver.getAlias(parameters[i]));
-		}
+		Object[] parameterInstances = resolveParametersOf(constructor);
 
 		try {
 			return constructor.newInstance(parameterInstances);
@@ -223,12 +235,7 @@ public class DependencyHandler {
 	private <T> T createProxyOf(Class<T> clazz) {
 		Constructor<? extends T> constructor = getSuitableConstructor(clazz);
 
-		Parameter[] parameters = constructor.getParameters();
-		Object[] parameterInstances = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
-					dependencyAliasResolver.getAlias(parameters[i]));
-		}
+		Object[] parameterInstances = resolveParametersOf(constructor);
 
 		Enhancer enhancer = new Enhancer();
 		enhancer.setSuperclass(clazz);
