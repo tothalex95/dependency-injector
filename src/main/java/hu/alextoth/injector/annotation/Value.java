@@ -13,7 +13,11 @@ import java.lang.annotation.Target;
  * @author Alex Toth
  */
 public @interface Value {
+	
+	public static final String DEFAULT_VALUE_ATTRIBUTE_NAME = "value";
 
-	public String value();
+	String value();
+
+	String valueAttributeName() default DEFAULT_VALUE_ATTRIBUTE_NAME;
 
 }
