@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 
 import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Inject;
+import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableFive;
@@ -61,6 +62,12 @@ public class AnnotationProcessorTest {
 
 	@DemoAnnotation
 	private static DemoInjectableFive demoInjectableFive;
+
+	@Value("true")
+	private static boolean demoBooleanValue;
+
+	@Value("demoString")
+	private static String demoStringValue;
 
 	@BeforeEach
 	public void setUp() throws NoSuchMethodException, SecurityException, NoSuchFieldException {

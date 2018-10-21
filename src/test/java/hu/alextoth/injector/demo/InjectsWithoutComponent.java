@@ -1,6 +1,7 @@
 package hu.alextoth.injector.demo;
 
 import hu.alextoth.injector.annotation.Inject;
+import hu.alextoth.injector.annotation.Value;
 
 public class InjectsWithoutComponent {
 
@@ -10,6 +11,9 @@ public class InjectsWithoutComponent {
 	private DemoInjectableTwo demoInjectableTwo;
 
 	private DemoInjectableThree demoInjectableThree;
+
+	@Value("wontwork")
+	private String demoStringValue;
 
 	@Inject
 	public InjectsWithoutComponent(DemoInjectableTwo demoInjectableTwo) {

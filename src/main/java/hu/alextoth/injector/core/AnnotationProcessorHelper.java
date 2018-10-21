@@ -19,10 +19,13 @@ import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Injectable;
+import hu.alextoth.injector.annotation.Value;
+import hu.alextoth.injector.util.ClassUtils;
 
 /**
  * Helper class for processing {@link Component}, {@link Configuration},
- * {@link Injectable}, {@link Inject} and {@link Alias} annotations.
+ * {@link Injectable}, {@link Inject}, {@link Alias} and {@link Value}
+ * annotations.
  * 
  * @author Alex Toth
  */
@@ -84,6 +87,15 @@ public class AnnotationProcessorHelper {
 	}
 
 	/**
+	 * Returns a set of annotation types annotated with {@link Value}.
+	 * 
+	 * @return A set of annotation types annotated with {@link Value}.
+	 */
+	public Set<Class<? extends Annotation>> getValueAnnotations() {
+		return getAnnotationsAnnotatedWith(Value.class);
+	}
+
+	/**
 	 * Returns a boolean value indicating whether the given annotation is component
 	 * annotation or not.
 	 * 
@@ -139,13 +151,24 @@ public class AnnotationProcessorHelper {
 	 * Returns a boolean value indicating whether the given annotation is alias
 	 * annotation or not.
 	 * 
-	 * @param annotation Annotation to check whether it is a alias annotation or
-	 *                   not.
+	 * @param annotation Annotation to check whether it is alias annotation or not.
 	 * @return A boolean value indicating whether the given annotation is alias
 	 *         annotation or not.
 	 */
 	public boolean isAliasAnnotation(Class<? extends Annotation> annotation) {
 		return getAliasAnnotations().contains(annotation);
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given annotation is value
+	 * annotation or not.
+	 * 
+	 * @param annotation Annotation to check whether it is value annotation or not.
+	 * @return A boolean value indicating whether the given annotation is value
+	 *         annotation or not.
+	 */
+	public boolean isValueAnnotation(Class<? extends Annotation> annotation) {
+		return getValueAnnotations().contains(annotation);
 	}
 
 	/**
@@ -240,6 +263,22 @@ public class AnnotationProcessorHelper {
 	}
 
 	/**
+	 * Returns a boolean value indicating whether the given field's value must be
+	 * set or not.
+	 * 
+	 * @param field Field to check whether its value must be set or not.
+	 * @return A boolean value indicating whether the given field's value must be
+	 *         set or not.
+	 */
+	public boolean isValueField(Field field) {
+		if (!canBeUsedAsValueField(field)) {
+			return false;
+		}
+		return Arrays.stream(field.getAnnotations())
+				.anyMatch(annotation -> isValueAnnotation(annotation.annotationType()));
+	}
+
+	/**
 	 * Returns a set of component classes.
 	 * 
 	 * @return A set of component classes.
@@ -326,6 +365,21 @@ public class AnnotationProcessorHelper {
 
 		return injectMethods.stream()
 				.filter(this::canBeUsedAsInjectMethod)
+				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns a set of methods annotated with {@link Value} or its alternatives.
+	 * 
+	 * @return A set of methods annotated with {@link Value} or its alternatives.
+	 */
+	public Set<Field> getValueFields() {
+		Set<Field> valueFields = Sets.newHashSet();
+
+		getValueAnnotations().forEach(annotation -> valueFields.addAll(getFieldsAnnotatedWith(annotation)));
+
+		return valueFields.stream()
+				.filter(this::canBeUsedAsValueField)
 				.collect(Collectors.toSet());
 	}
 
@@ -447,6 +501,19 @@ public class AnnotationProcessorHelper {
 	 */
 	private boolean canBeUsedAsInjectMethod(Method method) {
 		return isComponentClass(method.getDeclaringClass());
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given field's value can be set
+	 * or not.
+	 * 
+	 * @param field Field to check whether its value can be set or not.
+	 * @return A boolean value indicating whether the given field's value can be set
+	 *         or not.
+	 */
+	private boolean canBeUsedAsValueField(Field field) {
+		return isComponentClass(field.getDeclaringClass())
+				&& (ClassUtils.isPrimitiveOrWrapper(field.getType()) || String.class.isAssignableFrom(field.getType()));
 	}
 
 }
