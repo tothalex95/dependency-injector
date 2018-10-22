@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import com.google.common.collect.Sets;
 
+import hu.alextoth.injector.DependencyInjectorTest;
 import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Value;
@@ -155,7 +156,7 @@ public class AnnotationProcessorTest {
 				.thenReturn("alias1");
 	}
 
-	private void prepareDependencyHandler() {
+	private void prepareDependencyHandler() throws NoSuchMethodException, SecurityException {
 		ConfigClass configClass = new ConfigClass();
 		Mockito.when(dependencyHandler.getInstanceOf(ConfigClass.class)).thenReturn(configClass);
 
@@ -186,6 +187,51 @@ public class AnnotationProcessorTest {
 		DemoInjectableFive demoInjectableFive = new DemoInjectableFiveImpl();
 		Mockito.when(dependencyHandler.getInstanceOf(DemoInjectableFive.class, Alias.DEFAULT_ALIAS))
 				.thenReturn(demoInjectableFive);
+
+		Object[] emptyObjectArray = new Object[0];
+		Mockito.when(dependencyHandler.resolveParametersOf(ConfigClass.class.getDeclaredConstructor()))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(
+				dependencyHandler.resolveParametersOf(ConfigClass.class.getDeclaredMethod("getNamedDemoInjectableOne")))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(ConfigClass.class.getDeclaredMethod("getDemoInjectableOne")))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler
+				.resolveParametersOf(ConfigClass.class.getDeclaredMethod("getNamedDemoInjectableOne2")))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(
+				dependencyHandler.resolveParametersOf(ConfigClass.class.getDeclaredMethod("getDemoInjectableNine")))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(
+				dependencyHandler.resolveParametersOf(
+						ConfigClass.class.getDeclaredMethod("getDemoInjectableNine2", DemoInjectableOne.class)))
+				.thenReturn(new Object[] { demoInjectableOne12 });
+		Mockito.when(dependencyHandler.resolveParametersOf(ConfigClass.class.getDeclaredMethod("getShort")))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(AnnotationProcessorTest.class.getDeclaredConstructor()))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class)))
+				.thenReturn(new Object[] { demoInjectableOne12 });
+		Mockito.when(dependencyHandler.resolveParametersOf(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class)))
+				.thenReturn(new Object[] { demoInjectableThree });
+		Mockito.when(dependencyHandler
+				.resolveParametersOf(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class)))
+				.thenReturn(new Object[] { demoInjectableOne12 });
+		Mockito.when(dependencyHandler.resolveParametersOf(DemoInjectableThree.class.getDeclaredConstructor()))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(DemoInjectableFourImpl.class.getDeclaredConstructor()))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(DemoInjectableFiveImpl.class.getDeclaredConstructor()))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(String.class.getDeclaredConstructor()))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(DependencyInjectorTest.class.getDeclaredConstructor()))
+				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(
+				DemoInjectableThree.class.getDeclaredMethod("setDemoInjectableTwo", DemoInjectableTwo.class)))
+				.thenReturn(new Object[] { demoInjectableTwo });
 	}
 
 	private void prepareValueResolver() throws NoSuchFieldException, SecurityException {
@@ -248,14 +294,14 @@ public class AnnotationProcessorTest {
 	@Test
 	public void testProcessAnnotationsWithProcessConstructorLevelInjectionsFail()
 			throws NoSuchMethodException, SecurityException {
-		Mockito.when(dependencyAliasResolver
-				.getAlias(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class).getParameters()[0]))
+		Mockito.when(dependencyHandler
+				.resolveParametersOf(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class)))
 				.thenThrow(IllegalArgumentException.class);
 
 		assertThrows(AnnotationProcessingException.class, annotationProcessor::processAnnotations);
 
-		Mockito.verify(dependencyAliasResolver)
-				.getAlias(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class).getParameters()[0]);
+		Mockito.verify(dependencyHandler)
+				.resolveParametersOf(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class));
 	}
 
 	@Test
@@ -274,14 +320,14 @@ public class AnnotationProcessorTest {
 	@Test
 	public void testProcessAnnotationsWithProcessMethodLevelInjectionsFail()
 			throws NoSuchMethodException, SecurityException {
-		Mockito.when(dependencyAliasResolver.getAlias(AnnotationProcessorTest.class
-				.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class).getParameters()[0]))
+		Mockito.when(dependencyHandler.resolveParametersOf(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class)))
 				.thenThrow(IllegalArgumentException.class);
 
 		assertThrows(AnnotationProcessingException.class, annotationProcessor::processAnnotations);
 
-		Mockito.verify(dependencyAliasResolver).getAlias(AnnotationProcessorTest.class
-				.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class).getParameters()[0]);
+		Mockito.verify(dependencyHandler).resolveParametersOf(
+				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class));
 	}
 
 	@Test

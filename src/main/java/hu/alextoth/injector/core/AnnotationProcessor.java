@@ -1,11 +1,9 @@
 package hu.alextoth.injector.core;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Set;
 
@@ -69,7 +67,7 @@ public class AnnotationProcessor {
 
 			method.setAccessible(true);
 			try {
-				Object[] parameterInstances = resolveParameters(method);
+				Object[] parameterInstances = dependencyHandler.resolveParametersOf(method);
 				dependencyHandler.registerInstanceOf(method.getReturnType(),
 						method.invoke(configurationInstance, parameterInstances),
 						dependencyAliasResolver.getAliases(method));
@@ -106,7 +104,7 @@ public class AnnotationProcessor {
 		for (Constructor<?> constructor : constructorLevelInjections) {
 			constructor.setAccessible(true);
 			try {
-				Object[] parameterInstances = resolveParameters(constructor);
+				Object[] parameterInstances = dependencyHandler.resolveParametersOf(constructor);
 				Object componentInstance = constructor.newInstance(parameterInstances);
 				dependencyHandler.registerInstanceOf(constructor.getDeclaringClass(), componentInstance);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
@@ -153,7 +151,7 @@ public class AnnotationProcessor {
 
 			method.setAccessible(true);
 			try {
-				Object[] parameterInstances = resolveParameters(method);
+				Object[] parameterInstances = dependencyHandler.resolveParametersOf(method);
 				method.invoke(componentInstance, parameterInstances);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new AnnotationProcessingException(String.format("Cannot process method level Inject: %s", method),
@@ -179,19 +177,6 @@ public class AnnotationProcessor {
 						e);
 			}
 		}
-	}
-
-	// TODO: maybe I should move this method to a ParameterResolver class
-	private Object[] resolveParameters(Executable executable) {
-		Parameter[] parameters = executable.getParameters();
-		Object[] parameterInstances = new Object[parameters.length];
-
-		for (int i = 0; i < parameters.length; i++) {
-			parameterInstances[i] = dependencyHandler.getInstanceOf(parameters[i].getType(),
-					dependencyAliasResolver.getAlias(parameters[i]));
-		}
-
-		return parameterInstances;
 	}
 
 }

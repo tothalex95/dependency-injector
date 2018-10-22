@@ -213,11 +213,11 @@ public class DependencyHandler {
 	 * @return A new instance of the given class.
 	 */
 	private <T> T createNewInstanceOf(Class<T> clazz) {
-		Constructor<? extends T> constructor = getSuitableConstructor(clazz);
-
-		Object[] parameterInstances = resolveParametersOf(constructor);
-
 		try {
+			Constructor<? extends T> constructor = getSuitableConstructor(clazz);
+
+			Object[] parameterInstances = resolveParametersOf(constructor);
+
 			return constructor.newInstance(parameterInstances);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {

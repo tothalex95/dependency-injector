@@ -14,6 +14,7 @@ import org.reflections.Reflections;
 
 import com.google.common.collect.Sets;
 
+import hu.alextoth.injector.demo.DemoFinalClass;
 import hu.alextoth.injector.demo.DemoInjectableEight;
 import hu.alextoth.injector.demo.DemoInjectableFive;
 import hu.alextoth.injector.demo.DemoInjectableFiveImpl;
@@ -133,13 +134,42 @@ public class DependencyHandlerTest {
 	}
 
 	@Test
+	public void testCreateInstanceOfWithPrimitive() {
+		assertEquals(Integer.valueOf(0), dependencyHandler.createInstanceOf(Integer.class));
+	}
+
+	@Test
+	public void testCreateInstanceOfWithArray() {
+		Object[] objectArray = dependencyHandler.createInstanceOf(Object[].class);
+
+		assertNotNull(objectArray);
+		assertEquals(0, objectArray.length);
+	}
+
+	@Test
+	public void testCreateInstanceOfWithFinalClass() throws NoSuchMethodException, SecurityException {
+		assertNotNull(dependencyHandler.createInstanceOf(String.class));
+
+		Mockito.when(dependencyAliasResolver
+				.getAlias(DemoFinalClass.class.getDeclaredConstructor(String.class).getParameters()[0]))
+				.thenThrow(IllegalArgumentException.class);
+		assertThrows(IllegalArgumentException.class, () -> dependencyHandler.createInstanceOf(DemoFinalClass.class));
+		Mockito.verify(dependencyAliasResolver)
+				.getAlias(DemoFinalClass.class.getDeclaredConstructor(String.class).getParameters()[0]);
+	}
+
+	@Test
 	public void testRegisterInstanceOf() {
 		DemoInjectableOne demoInjectableOne = new DemoInjectableOne(1995, "Alex");
 
 		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne);
+		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne, "alias");
 
 		assertNotNull(dependencyHandler.getInstanceOf(DemoInjectableOne.class));
 		assertEquals(dependencyHandler.getInstanceOf(DemoInjectableOne.class), demoInjectableOne);
+
+		assertNotNull(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias"));
+		assertEquals(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias"), demoInjectableOne);
 	}
 
 }
