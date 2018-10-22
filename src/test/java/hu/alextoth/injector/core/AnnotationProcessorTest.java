@@ -2,6 +2,7 @@ package hu.alextoth.injector.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -29,6 +30,7 @@ import hu.alextoth.injector.demo.DemoInjectableFourImpl;
 import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoInjectableThree;
 import hu.alextoth.injector.demo.DemoInjectableTwo;
+import hu.alextoth.injector.exception.AnnotationProcessingException;
 
 @ExtendWith(MockitoExtension.class)
 @DemoAnnotation
@@ -42,6 +44,9 @@ public class AnnotationProcessorTest {
 
 	@Mock
 	private DependencyHandler dependencyHandler;
+
+	@Mock
+	private ValueResolver valueResolver;
 
 	@InjectMocks
 	private AnnotationProcessor annotationProcessor;
@@ -66,6 +71,9 @@ public class AnnotationProcessorTest {
 	@Value("true")
 	private static boolean demoBooleanValue;
 
+	@Value("2018.1022")
+	private static double demoDoubleValue;
+
 	@Value("demoString")
 	private static String demoStringValue;
 
@@ -74,6 +82,7 @@ public class AnnotationProcessorTest {
 		prepareAnnotationProcessorHelper();
 		prepareDependencyAliasResolver();
 		prepareDependencyHandler();
+		prepareValueResolver();
 	}
 
 	private void prepareAnnotationProcessorHelper()
@@ -106,6 +115,12 @@ public class AnnotationProcessorTest {
 		Mockito.when(annotationProcessorHelper.isComponentClass(AnnotationProcessorTest.class)).thenReturn(true);
 		Mockito.when(annotationProcessorHelper.isComponentClass(DemoInjectableTwo.class)).thenReturn(true);
 		Mockito.when(annotationProcessorHelper.isComponentClass(DemoInjectableThree.class)).thenReturn(true);
+
+		// Value fields
+		Mockito.when(annotationProcessorHelper.getValueFields())
+				.thenReturn(Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoBooleanValue"),
+						AnnotationProcessorTest.class.getDeclaredField("demoDoubleValue"),
+						AnnotationProcessorTest.class.getDeclaredField("demoStringValue")));
 	}
 
 	private void prepareDependencyAliasResolver()
@@ -173,9 +188,18 @@ public class AnnotationProcessorTest {
 				.thenReturn(demoInjectableFive);
 	}
 
+	private void prepareValueResolver() throws NoSuchFieldException, SecurityException {
+		Mockito.when(valueResolver.getValueOf(AnnotationProcessorTest.class.getDeclaredField("demoBooleanValue")))
+				.thenReturn(true);
+		Mockito.when(valueResolver.getValueOf(AnnotationProcessorTest.class.getDeclaredField("demoDoubleValue")))
+				.thenReturn(2018.1022);
+		Mockito.when(valueResolver.getValueOf(AnnotationProcessorTest.class.getDeclaredField("demoStringValue")))
+				.thenReturn("demoString");
+	}
+
 	@AfterEach
 	public void tearDown() {
-		Mockito.reset(annotationProcessorHelper, dependencyAliasResolver, dependencyHandler);
+		Mockito.reset(annotationProcessorHelper, dependencyAliasResolver, dependencyHandler, valueResolver);
 	}
 
 	@Test
@@ -202,6 +226,73 @@ public class AnnotationProcessorTest {
 		assertEquals(demoInjectableTwo, demoInjectableThree.getDemoInjectableTwo());
 		assertEquals(demoInjectableTwo.getDemoInjectableOne(),
 				demoInjectableThree.getDemoInjectableTwo().getDemoInjectableOne());
+
+		assertEquals(true, demoBooleanValue);
+		assertEquals(2018.1022, demoDoubleValue);
+		assertEquals("demoString", demoStringValue);
+	}
+
+	@Test
+	public void testProcessAnnotationsWithProcessConfigurationsAndInjectablesFail()
+			throws NoSuchMethodException, SecurityException {
+		Mockito.when(
+				dependencyAliasResolver.getAliases(ConfigClass.class.getDeclaredMethod("getNamedDemoInjectableOne")))
+				.thenThrow(IllegalArgumentException.class);
+
+		assertThrows(AnnotationProcessingException.class, annotationProcessor::processAnnotations);
+
+		Mockito.verify(dependencyAliasResolver)
+				.getAliases(ConfigClass.class.getDeclaredMethod("getNamedDemoInjectableOne"));
+	}
+
+	@Test
+	public void testProcessAnnotationsWithProcessConstructorLevelInjectionsFail()
+			throws NoSuchMethodException, SecurityException {
+		Mockito.when(dependencyAliasResolver
+				.getAlias(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class).getParameters()[0]))
+				.thenThrow(IllegalArgumentException.class);
+
+		assertThrows(AnnotationProcessingException.class, annotationProcessor::processAnnotations);
+
+		Mockito.verify(dependencyAliasResolver)
+				.getAlias(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class).getParameters()[0]);
+	}
+
+	@Test
+	public void testProcessAnnotationsWithProcessFieldLevelInjectionsFail()
+			throws NoSuchFieldException, SecurityException {
+		Mockito.when(
+				dependencyAliasResolver.getAlias(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne")))
+				.thenThrow(IllegalArgumentException.class);
+
+		assertThrows(AnnotationProcessingException.class, annotationProcessor::processAnnotations);
+
+		Mockito.verify(dependencyAliasResolver)
+				.getAlias(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne"));
+	}
+
+	@Test
+	public void testProcessAnnotationsWithProcessMethodLevelInjectionsFail()
+			throws NoSuchMethodException, SecurityException {
+		Mockito.when(dependencyAliasResolver.getAlias(AnnotationProcessorTest.class
+				.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class).getParameters()[0]))
+				.thenThrow(IllegalArgumentException.class);
+
+		assertThrows(AnnotationProcessingException.class, annotationProcessor::processAnnotations);
+
+		Mockito.verify(dependencyAliasResolver).getAlias(AnnotationProcessorTest.class
+				.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class).getParameters()[0]);
+	}
+
+	@Test
+	public void testProcessAnnotationsWithProcessValuesFail() throws NoSuchFieldException, SecurityException {
+		Mockito.when(valueResolver.getValueOf(AnnotationProcessorTest.class.getDeclaredField("demoStringValue")))
+				.thenThrow(IllegalArgumentException.class);
+
+		assertThrows(AnnotationProcessingException.class, annotationProcessor::processAnnotations);
+
+		Mockito.verify(valueResolver)
+				.getValueOf(AnnotationProcessorTest.class.getDeclaredField("demoStringValue"));
 	}
 
 	@Inject

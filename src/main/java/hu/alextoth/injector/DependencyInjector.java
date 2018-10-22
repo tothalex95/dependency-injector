@@ -16,6 +16,7 @@ import hu.alextoth.injector.core.AnnotationProcessor;
 import hu.alextoth.injector.core.AnnotationProcessorHelper;
 import hu.alextoth.injector.core.DependencyAliasResolver;
 import hu.alextoth.injector.core.DependencyHandler;
+import hu.alextoth.injector.core.ValueResolver;
 
 /**
  * Main class of the dependency injection framework.
@@ -38,9 +39,11 @@ public class DependencyInjector {
 
 		DependencyAliasResolver dependencyAliasResolver = new DependencyAliasResolver(annotationProcessorHelper);
 
+		ValueResolver valueResolver = new ValueResolver(annotationProcessorHelper);
+
 		dependencyHandler = new DependencyHandler(reflections, annotationProcessorHelper, dependencyAliasResolver);
 		annotationProcessor = new AnnotationProcessor(annotationProcessorHelper, dependencyHandler,
-				dependencyAliasResolver);
+				dependencyAliasResolver, valueResolver);
 	}
 
 	/**

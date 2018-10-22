@@ -13,6 +13,7 @@ import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Injectable;
+import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.core.helper.DependencySorter;
 import hu.alextoth.injector.exception.AnnotationProcessingException;
 
@@ -28,12 +29,14 @@ public class AnnotationProcessor {
 	private final DependencyHandler dependencyHandler;
 	private final DependencyAliasResolver dependencyAliasResolver;
 	private final DependencySorter dependencySorter;
+	private final ValueResolver valueResolver;
 
 	public AnnotationProcessor(AnnotationProcessorHelper annotationProcessorHelper, DependencyHandler dependencyHandler,
-			DependencyAliasResolver dependencyAliasResolver) {
+			DependencyAliasResolver dependencyAliasResolver, ValueResolver valueResolver) {
 		this.annotationProcessorHelper = annotationProcessorHelper;
 		this.dependencyHandler = dependencyHandler;
 		this.dependencyAliasResolver = dependencyAliasResolver;
+		this.valueResolver = valueResolver;
 
 		dependencySorter = new DependencySorter();
 	}
@@ -46,6 +49,7 @@ public class AnnotationProcessor {
 	public void processAnnotations() {
 		processConfigurationsAndInjectables();
 		processComponentsAndInjections();
+		processValues();
 	}
 
 	/**
@@ -64,8 +68,8 @@ public class AnnotationProcessor {
 			Object configurationInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
 
 			method.setAccessible(true);
-			Object[] parameterInstances = resolveParameters(method);
 			try {
+				Object[] parameterInstances = resolveParameters(method);
 				dependencyHandler.registerInstanceOf(method.getReturnType(),
 						method.invoke(configurationInstance, parameterInstances),
 						dependencyAliasResolver.getAliases(method));
@@ -101,8 +105,8 @@ public class AnnotationProcessor {
 
 		for (Constructor<?> constructor : constructorLevelInjections) {
 			constructor.setAccessible(true);
-			Object[] parameterInstances = resolveParameters(constructor);
 			try {
+				Object[] parameterInstances = resolveParameters(constructor);
 				Object componentInstance = constructor.newInstance(parameterInstances);
 				dependencyHandler.registerInstanceOf(constructor.getDeclaringClass(), componentInstance);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
@@ -148,11 +152,30 @@ public class AnnotationProcessor {
 			Object componentInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
 
 			method.setAccessible(true);
-			Object[] parameterInstances = resolveParameters(method);
 			try {
+				Object[] parameterInstances = resolveParameters(method);
 				method.invoke(componentInstance, parameterInstances);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new AnnotationProcessingException(String.format("Cannot process method level Inject: %s", method),
+						e);
+			}
+		}
+	}
+
+	/**
+	 * Method for processing fields annotated with {@link Value}.
+	 */
+	private void processValues() {
+		Set<Field> valueFields = annotationProcessorHelper.getValueFields();
+
+		for (Field field : valueFields) {
+			Object componentInstance = dependencyHandler.getInstanceOf(field.getDeclaringClass());
+
+			field.setAccessible(true);
+			try {
+				field.set(componentInstance, valueResolver.getValueOf(field));
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				throw new AnnotationProcessingException(String.format("Cannot process value field: %s", field),
 						e);
 			}
 		}
