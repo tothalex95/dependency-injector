@@ -62,29 +62,7 @@ public class ValueResolver {
 
 			String stringValue = String.valueOf(valueAttribute.invoke(valueInstance));
 
-			if (String.class.equals(clazz)) {
-				return stringValue;
-			} else if (ClassUtils.isPrimitiveOrWrapper(clazz)) {
-				if (boolean.class.equals(clazz) || Boolean.class.equals(clazz)) {
-					return Boolean.valueOf(stringValue);
-				} else if (byte.class.equals(clazz) || Byte.class.equals(clazz)) {
-					return Byte.valueOf(stringValue);
-				} else if (char.class.equals(clazz) || Character.class.equals(clazz)) {
-					return Character.valueOf(stringValue.charAt(0));
-				} else if (double.class.equals(clazz) || Double.class.equals(clazz)) {
-					return Double.valueOf(stringValue);
-				} else if (float.class.equals(clazz) || Float.class.equals(clazz)) {
-					return Float.valueOf(stringValue);
-				} else if (int.class.equals(clazz) || Integer.class.equals(clazz)) {
-					return Integer.valueOf(stringValue);
-				} else if (long.class.equals(clazz) || Long.class.equals(clazz)) {
-					return Long.valueOf(stringValue);
-				} else /* (short.class.equals(clazz) || Short.class.equals(clazz)) */ {
-					return Short.valueOf(stringValue);
-				}
-			} else {
-				return null;
-			}
+			return ClassUtils.convertToPrimitive(clazz, stringValue);
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			throw new IllegalArgumentException(

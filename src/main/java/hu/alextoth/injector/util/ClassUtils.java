@@ -68,6 +68,44 @@ public final class ClassUtils {
 	}
 
 	/**
+	 * Converts the given value to the given primitive type.
+	 * 
+	 * @param clazz The conversion's target primitive type.
+	 * @param value The value to be converted.
+	 * @return The value converted to the given primitive type.
+	 */
+	public static Object convertToPrimitive(Class<?> clazz, String value) {
+		if (String.class.isAssignableFrom(clazz)) {
+			return value;
+		}
+		if (boolean.class.equals(clazz) || Boolean.class.equals(clazz)) {
+			return Boolean.valueOf(value);
+		}
+		if (byte.class.equals(clazz) || Byte.class.equals(clazz)) {
+			return Byte.valueOf(value);
+		}
+		if (char.class.equals(clazz) || Character.class.equals(clazz)) {
+			return Character.valueOf(value.charAt(0));
+		}
+		if (double.class.equals(clazz) || Double.class.equals(clazz)) {
+			return Double.valueOf(value);
+		}
+		if (float.class.equals(clazz) || Float.class.equals(clazz)) {
+			return Float.valueOf(value);
+		}
+		if (int.class.equals(clazz) || Integer.class.equals(clazz)) {
+			return Integer.valueOf(value);
+		}
+		if (long.class.equals(clazz) || Long.class.equals(clazz)) {
+			return Long.valueOf(value);
+		}
+		if (short.class.equals(clazz) || Short.class.equals(clazz)) {
+			return Short.valueOf(value);
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the default value of the given primitive type.
 	 * 
 	 * @param primitive Primitive type of which the default value must be returned.
