@@ -1,5 +1,7 @@
 package hu.alextoth.injector.util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,35 +76,32 @@ public final class ClassUtils {
 	 * @param value The value to be converted.
 	 * @return The value converted to the given primitive type.
 	 */
-	public static Object convertToPrimitive(Class<?> clazz, String value) {
+	@SuppressWarnings("unchecked")
+	public static <T> T convertToPrimitive(Class<T> clazz, String value) {
+		if (clazz == null || value == null) {
+			throw new IllegalArgumentException("The type and the value shouldn't be null.");
+		}
+
 		if (String.class.isAssignableFrom(clazz)) {
-			return value;
-		}
-		if (boolean.class.equals(clazz) || Boolean.class.equals(clazz)) {
-			return Boolean.valueOf(value);
-		}
-		if (byte.class.equals(clazz) || Byte.class.equals(clazz)) {
-			return Byte.valueOf(value);
+			return (T) value;
 		}
 		if (char.class.equals(clazz) || Character.class.equals(clazz)) {
-			return Character.valueOf(value.charAt(0));
+			return (T) Character.valueOf(value.charAt(0));
 		}
-		if (double.class.equals(clazz) || Double.class.equals(clazz)) {
-			return Double.valueOf(value);
+
+		Class<?> wrapper = getWrapperForPrimitive(clazz);
+		if (wrapper == null) {
+			throw new IllegalArgumentException(String.format("%s is not primitive type.", clazz.getName()));
 		}
-		if (float.class.equals(clazz) || Float.class.equals(clazz)) {
-			return Float.valueOf(value);
+
+		try {
+			Method valueOfMethod = wrapper.getDeclaredMethod("valueOf", String.class);
+			valueOfMethod.setAccessible(true);
+			return (T) valueOfMethod.invoke(null, value);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			throw new IllegalArgumentException(String.format("Cannot convert %s to %s.", value, clazz.getName()), e);
 		}
-		if (int.class.equals(clazz) || Integer.class.equals(clazz)) {
-			return Integer.valueOf(value);
-		}
-		if (long.class.equals(clazz) || Long.class.equals(clazz)) {
-			return Long.valueOf(value);
-		}
-		if (short.class.equals(clazz) || Short.class.equals(clazz)) {
-			return Short.valueOf(value);
-		}
-		return null;
 	}
 
 	/**

@@ -124,11 +124,10 @@ public class ValueResolverTest {
 		assertEquals((short) 1022, valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoShort2")));
 
 		assertEquals("demoString", valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoString")));
-		assertThrows(IllegalArgumentException.class, () -> {
-			valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoString2"));
-		});
+		assertThrows(IllegalArgumentException.class,
+				() -> valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoString2")));
 
-		assertEquals(null, valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoObject")));
+		assertThrows(IllegalArgumentException.class, () -> valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoObject")));
 	}
 
 }
