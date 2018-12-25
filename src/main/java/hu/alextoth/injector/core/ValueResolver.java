@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import hu.alextoth.injector.annotation.Value;
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.util.ClassUtils;
 
 /**

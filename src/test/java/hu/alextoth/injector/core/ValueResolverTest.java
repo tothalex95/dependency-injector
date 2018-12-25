@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import hu.alextoth.injector.annotation.Value;
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.demo.DemoValue;
 import hu.alextoth.injector.demo.DemoWrongValue;
 

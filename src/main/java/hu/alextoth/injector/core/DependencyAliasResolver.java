@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 
 import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Injectable;
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 
 /**
  * Class for resolving dependency aliases.

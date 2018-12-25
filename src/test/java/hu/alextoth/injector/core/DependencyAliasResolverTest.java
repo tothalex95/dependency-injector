@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import hu.alextoth.injector.annotation.Alias;
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableThree;

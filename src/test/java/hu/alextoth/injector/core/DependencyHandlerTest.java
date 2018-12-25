@@ -14,6 +14,7 @@ import org.reflections.Reflections;
 
 import com.google.common.collect.Sets;
 
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.demo.DemoFinalClass;
 import hu.alextoth.injector.demo.DemoInjectableEight;
 import hu.alextoth.injector.demo.DemoInjectableFive;

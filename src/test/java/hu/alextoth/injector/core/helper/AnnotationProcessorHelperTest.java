@@ -1,4 +1,4 @@
-package hu.alextoth.injector.core;
+package hu.alextoth.injector.core.helper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,6 +27,9 @@ import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.annotation.Value;
+import hu.alextoth.injector.core.AnnotationProcessorTest;
+import hu.alextoth.injector.core.MockitoExtension;
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoAnnotation2;

@@ -22,6 +22,7 @@ import hu.alextoth.injector.DependencyInjectorTest;
 import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Value;
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableFive;

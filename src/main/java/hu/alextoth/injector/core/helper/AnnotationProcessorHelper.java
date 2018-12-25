@@ -1,4 +1,4 @@
-package hu.alextoth.injector.core;
+package hu.alextoth.injector.core.helper;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

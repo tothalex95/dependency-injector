@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 import hu.alextoth.injector.annotation.Alias;
+import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.util.ClassUtils;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
