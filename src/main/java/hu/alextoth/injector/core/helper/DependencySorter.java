@@ -1,5 +1,6 @@
 package hu.alextoth.injector.core.helper;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,9 +16,13 @@ import java.util.Set;
 public class DependencySorter {
 
 	private final InjectableMethodComparator injectableMethodComparator;
+	private final InjectConstructorComparator injectConstructorComparator;
 
 	public DependencySorter() {
-		injectableMethodComparator = new InjectableMethodComparator(new DependencyComparator());
+		DependencyComparator dependencyComparator = new DependencyComparator();
+
+		injectableMethodComparator = new InjectableMethodComparator(dependencyComparator);
+		injectConstructorComparator = new InjectConstructorComparator(dependencyComparator);
 	}
 
 	/**
@@ -32,6 +37,20 @@ public class DependencySorter {
 		Collections.sort(sortedInjectableMethods, injectableMethodComparator);
 
 		return sortedInjectableMethods;
+	}
+
+	/**
+	 * Returns a sorted list of the given inject constructors.
+	 * 
+	 * @param injectConstructors A set of inject constructors that must be sorted.
+	 * @return A sorted list of the given inject constructors.
+	 */
+	public List<Constructor<?>> getSortedInjectConstructors(Set<Constructor<?>> injectConstructors) {
+		List<Constructor<?>> sortedInjectConstructors = new ArrayList<>(injectConstructors);
+
+		Collections.sort(sortedInjectConstructors, injectConstructorComparator);
+
+		return sortedInjectConstructors;
 	}
 
 }

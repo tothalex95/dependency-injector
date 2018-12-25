@@ -99,9 +99,10 @@ public class AnnotationProcessor {
 	 * method forces the use of the annotated constructor.
 	 */
 	private void processConstructorLevelInjections() {
-		Set<Constructor<?>> constructorLevelInjections = annotationProcessorHelper.getInjectConstructors();
+		List<Constructor<?>> sortedInjectConstructors = dependencySorter
+				.getSortedInjectConstructors(annotationProcessorHelper.getInjectConstructors());
 
-		for (Constructor<?> constructor : constructorLevelInjections) {
+		for (Constructor<?> constructor : sortedInjectConstructors) {
 			constructor.setAccessible(true);
 			try {
 				Object[] parameterInstances = dependencyHandler.resolveParametersOf(constructor);
@@ -173,8 +174,7 @@ public class AnnotationProcessor {
 			try {
 				field.set(componentInstance, valueResolver.getValueOf(field));
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new AnnotationProcessingException(String.format("Cannot process value field: %s", field),
-						e);
+				throw new AnnotationProcessingException(String.format("Cannot process value field: %s", field), e);
 			}
 		}
 	}

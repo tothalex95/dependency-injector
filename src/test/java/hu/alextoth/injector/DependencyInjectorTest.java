@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Inject;
+import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectableNine;
 import hu.alextoth.injector.demo.DemoInjectableOne;
@@ -49,6 +50,9 @@ public class DependencyInjectorTest {
 	@Inject
 	private static Object[] demoObjectArray;
 
+	@Value("20181225")
+	private static int demoValue;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -83,6 +87,8 @@ public class DependencyInjectorTest {
 		assertNotNull(demoObjectArray);
 		assertEquals(0, demoPrimitiveArray.length);
 		assertEquals(0, demoObjectArray.length);
+
+		assertEquals(20181225, demoValue);
 	}
 
 	@Test
