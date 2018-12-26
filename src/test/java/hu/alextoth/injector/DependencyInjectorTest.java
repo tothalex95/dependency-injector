@@ -10,6 +10,8 @@ import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.demo.DemoAnnotation;
+import hu.alextoth.injector.demo.DemoInjectConstructor2;
+import hu.alextoth.injector.demo.DemoInjectConstructor3;
 import hu.alextoth.injector.demo.DemoInjectableNine;
 import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoInjectableThree;
@@ -53,6 +55,12 @@ public class DependencyInjectorTest {
 	@Value("20181225")
 	private static int demoValue;
 
+	@Inject
+	private static DemoInjectConstructor2 demoInjectConstructor2;
+
+	@Inject
+	private static DemoInjectConstructor3 demoInjectConstructor3;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -89,6 +97,10 @@ public class DependencyInjectorTest {
 		assertEquals(0, demoObjectArray.length);
 
 		assertEquals(20181225, demoValue);
+
+		assertNotNull(demoInjectConstructor2);
+		assertNotNull(demoInjectConstructor3);
+		assertEquals(demoInjectConstructor3, demoInjectConstructor2.getDemoInjectConstructor3());
 	}
 
 	@Test

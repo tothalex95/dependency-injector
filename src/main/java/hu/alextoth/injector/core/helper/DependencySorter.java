@@ -1,6 +1,7 @@
 package hu.alextoth.injector.core.helper;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,12 +18,16 @@ public class DependencySorter {
 
 	private final InjectableMethodComparator injectableMethodComparator;
 	private final InjectConstructorComparator injectConstructorComparator;
+	private final InjectFieldComparator injectFieldComparator;
+	private final InjectMethodComparator injectMethodComparator;
 
 	public DependencySorter() {
 		DependencyComparator dependencyComparator = new DependencyComparator();
 
 		injectableMethodComparator = new InjectableMethodComparator(dependencyComparator);
 		injectConstructorComparator = new InjectConstructorComparator(dependencyComparator);
+		injectFieldComparator = new InjectFieldComparator(dependencyComparator);
+		injectMethodComparator = new InjectMethodComparator(dependencyComparator);
 	}
 
 	/**
@@ -51,6 +56,34 @@ public class DependencySorter {
 		Collections.sort(sortedInjectConstructors, injectConstructorComparator);
 
 		return sortedInjectConstructors;
+	}
+
+	/**
+	 * Returns a sorted list of the given inject fields.
+	 * 
+	 * @param injectFields A set of inject fields that must be sorted.
+	 * @return A sorted list of the given inject fields.
+	 */
+	public List<Field> getSortedInjectFields(Set<Field> injectFields) {
+		List<Field> sortedInjectFields = new ArrayList<>(injectFields);
+
+		Collections.sort(sortedInjectFields, injectFieldComparator);
+
+		return sortedInjectFields;
+	}
+
+	/**
+	 * Returns a sorted list of the given inject methods.
+	 * 
+	 * @param injectMethods A set of inject methods that must be sorted.
+	 * @return A sorted list of the given inject methods.
+	 */
+	public List<Method> getSortedInjectMethods(Set<Method> injectMethods) {
+		List<Method> sortedInjectMethods = new ArrayList<>(injectMethods);
+
+		Collections.sort(sortedInjectMethods, injectMethodComparator);
+
+		return sortedInjectMethods;
 	}
 
 }

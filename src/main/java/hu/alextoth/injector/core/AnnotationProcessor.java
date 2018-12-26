@@ -123,9 +123,10 @@ public class AnnotationProcessor {
 	 * instantiates an object of the field's type and sets it.
 	 */
 	private void processFieldLevelInjections() {
-		Set<Field> fieldLevelInjections = annotationProcessorHelper.getInjectFields();
+		List<Field> sortedInjectFields = dependencySorter
+				.getSortedInjectFields(annotationProcessorHelper.getInjectFields());
 
-		for (Field field : fieldLevelInjections) {
+		for (Field field : sortedInjectFields) {
 			Object componentInstance = dependencyHandler.getInstanceOf(field.getDeclaringClass());
 
 			field.setAccessible(true);
@@ -146,9 +147,10 @@ public class AnnotationProcessor {
 	 * methods with the given parameters.
 	 */
 	private void processMethodLevelInjections() {
-		Set<Method> methodLevelInjections = annotationProcessorHelper.getInjectMethods();
+		List<Method> sortedInjectMethods = dependencySorter
+				.getSortedInjectMethods(annotationProcessorHelper.getInjectMethods());
 
-		for (Method method : methodLevelInjections) {
+		for (Method method : sortedInjectMethods) {
 			Object componentInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
 
 			method.setAccessible(true);
