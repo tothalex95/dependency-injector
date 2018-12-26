@@ -82,6 +82,7 @@ public class ClassUtilsTest {
 		assertEquals(false, ClassUtils.isConcrete(Test.class));
 		assertEquals(false, ClassUtils.isConcrete(Object[].class));
 		assertEquals(false, ClassUtils.isConcrete(DemoEnum.class));
+		assertEquals(false, ClassUtils.isConcrete(null));
 	}
 
 	@Test
@@ -89,6 +90,7 @@ public class ClassUtilsTest {
 		assertEquals(true, ClassUtils.isPrimitive(int.class));
 		assertEquals(false, ClassUtils.isPrimitive(Integer.class));
 		assertEquals(false, ClassUtils.isPrimitive(Object.class));
+		assertEquals(false, ClassUtils.isPrimitive(null));
 	}
 
 	@Test

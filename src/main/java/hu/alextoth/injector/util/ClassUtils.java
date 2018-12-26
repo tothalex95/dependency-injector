@@ -153,8 +153,8 @@ public final class ClassUtils {
 	 *         not.
 	 */
 	public static boolean isConcrete(Class<?> clazz) {
-		return !(clazz.isPrimitive() || clazz.isInterface() || clazz.isAnnotation() || clazz.isArray() || clazz.isEnum()
-				|| isWrapper(clazz) || Modifier.isAbstract(clazz.getModifiers()));
+		return clazz != null && !(clazz.isPrimitive() || clazz.isInterface() || clazz.isAnnotation() || clazz.isArray()
+				|| clazz.isEnum() || isWrapper(clazz) || Modifier.isAbstract(clazz.getModifiers()));
 	}
 
 	/**
@@ -166,7 +166,7 @@ public final class ClassUtils {
 	 *         type or not.
 	 */
 	public static boolean isPrimitive(Class<?> clazz) {
-		return clazz.isPrimitive();
+		return clazz != null && clazz.isPrimitive();
 	}
 
 	/**
