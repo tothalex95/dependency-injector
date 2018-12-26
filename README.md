@@ -23,7 +23,7 @@ These can be combined. The elements annotated with [@Inject](https://github.com/
 
 Constructor injection example:
 
-```
+```java
 @Component
 public class MyComponent {
 
@@ -39,7 +39,7 @@ public class MyComponent {
 
 Field injection example:
 
-```
+```java
 @Component
 public class MyComponent {
 
@@ -53,12 +53,12 @@ public class MyComponent {
 
 Method injection example:
 
-```
+```java
 @Component
 public class MyComponent {
 
 	@Inject
-	public setMyDependency(MyDependency myDependency) {
+	public void setMyDependency(MyDependency myDependency) {
 		...
 	}
 	
@@ -80,13 +80,13 @@ For example, if your project's structure looks like the following:
 
 And you want Dependency Injector to look for annotations in all of them, you can simply do this:
 
-```
+```java
 DependencyInjector dependencyInjector = new DependencyInjector("com.myproject");
 ```
 
 Then call:
 
-```
+```java
 dependencyInjector.injectDependencies();
 ```
 
@@ -98,7 +98,7 @@ If you want to give hints to Dependency Injector, you have to annotate your conf
 
 For example, if you have a class, that you want to use as a dependency in others, like this:
 
-```
+```java
 public class Author {
 
 	private String name;
@@ -116,7 +116,7 @@ public class Author {
 
 You can let Dependency Injector instantiate the *String* and the *Address* field, but I'm quite sure the result won't be like you wanted. The better solution is to create a configuration class and add injectables to it, like the following:
 
-```
+```java
 @Configuration
 public class MyConfiguration {
 	
@@ -136,7 +136,7 @@ By default, Dependency Injector looks for elements annotated with [@Component](h
 
 For example, you will be able to use *MyAnnotation* instead of *Configuration* and *Inject* with this:
 
-```
+```java
 @Configuration
 @Inject
 public @interface MyAnnotation {
@@ -152,7 +152,7 @@ In some cases it's not enough to have only one instance of a class, so Dependenc
 
 Here is a simple example for using dependency aliases:
 
-```
+```java
 @Configuration
 public class MyConfiguration {
 	
@@ -161,7 +161,7 @@ public class MyConfiguration {
 		return new Author("Alex Toth", new Address("Hungary", "City", "Street", 1));
 	}
 	
-	@Injectable(alias = { "john", "doe", "johndoe" }
+	@Injectable(alias = { "john", "doe", "johndoe" })
 	public Author getJohnDoe() {
 		return new Author("John Doe", new Address("England", "London", "Street", 1));
 	}
@@ -189,3 +189,24 @@ public class MyComponent {
 ```
 
 In the example above, I only used *Author* class for injectables. Without aliases the return value of *getJohnDoe* would simply overwrite the previously registered return value of *getAlexToth* as they're of the same type. However, as I've set aliases for them, Dependency Injector knows that they have to be managed separately. So, *john* will be equal to *johndoe*, but they won't be equal to *alex*.
+
+### Value annotation
+
+Simple injection can be used for primitive data types too, Dependency Injector will set the default primitive value for the given type (eg. 0 for numeric types) or you can create a configuration to define your own values to be used. But there is a way more comfortable solution for this kind of problem. Instead of creating configurations for primitive values, you can use the [@Value](https://github.com/tothalex95/dependency-injector/blob/master/src/main/java/hu/alextoth/injector/annotation/Value.java) annotation to tell Dependency Injector the value to be injected.
+
+Here is an example:
+
+```java
+@Component
+public class MyComponent {
+	
+	@Value("20181226")
+	private int myInt;
+	
+	@Value("Hello World!")
+	private String myString;
+	
+}
+```
+
+Currently [@Value](https://github.com/tothalex95/dependency-injector/blob/master/src/main/java/hu/alextoth/injector/annotation/Value.java) can be used for primitive data types and String. Soon it will support arrays of primitive data types too.
