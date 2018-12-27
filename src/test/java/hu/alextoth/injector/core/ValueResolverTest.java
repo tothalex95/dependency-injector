@@ -1,6 +1,7 @@
 package hu.alextoth.injector.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.AfterEach;
@@ -85,6 +86,12 @@ public class ValueResolverTest {
 	@Value("demoObject")
 	private Object demoObject;
 
+	@Value({ "2018", "12", "26" })
+	private int[] demoIntArray;
+
+	@Value({ "2018", "12", "26" })
+	private Integer[] demoIntegerArray;
+
 	@BeforeEach
 	public void setUp() {
 		Mockito.when(annotationProcessorHelper.isValueAnnotation(Value.class)).thenReturn(true);
@@ -128,7 +135,23 @@ public class ValueResolverTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoString2")));
 
-		assertThrows(IllegalArgumentException.class, () -> valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoObject")));
+		assertThrows(IllegalArgumentException.class,
+				() -> valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoObject")));
+
+		demoIntArray = (int[]) valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoIntArray"));
+		assertNotNull(demoIntArray);
+		assertEquals(3, demoIntArray.length);
+		assertEquals(2018, demoIntArray[0]);
+		assertEquals(12, demoIntArray[1]);
+		assertEquals(26, demoIntArray[2]);
+
+		demoIntegerArray = (Integer[]) valueResolver
+				.getValueOf(ValueResolverTest.class.getDeclaredField("demoIntegerArray"));
+		assertNotNull(demoIntegerArray);
+		assertEquals(3, demoIntegerArray.length);
+		assertEquals(Integer.valueOf(2018), demoIntegerArray[0]);
+		assertEquals(Integer.valueOf(12), demoIntegerArray[1]);
+		assertEquals(Integer.valueOf(26), demoIntegerArray[2]);
 	}
 
 }

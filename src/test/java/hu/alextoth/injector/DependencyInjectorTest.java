@@ -61,6 +61,15 @@ public class DependencyInjectorTest {
 	@Inject
 	private static DemoInjectConstructor3 demoInjectConstructor3;
 
+	@Value({ "2018", "12", "26" })
+	private static short[] demoPrimitiveValueArray;
+
+	@Value({ "20.18", "12.27" })
+	private static Double[] demoWrapperValueArray;
+
+	@Value({ "Hello", "World" })
+	private static String[] demoStringValueArray;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -101,6 +110,22 @@ public class DependencyInjectorTest {
 		assertNotNull(demoInjectConstructor2);
 		assertNotNull(demoInjectConstructor3);
 		assertEquals(demoInjectConstructor3, demoInjectConstructor2.getDemoInjectConstructor3());
+
+		assertNotNull(demoPrimitiveValueArray);
+		assertEquals(3, demoPrimitiveValueArray.length);
+		assertEquals(2018, demoPrimitiveValueArray[0]);
+		assertEquals(12, demoPrimitiveValueArray[1]);
+		assertEquals(26, demoPrimitiveValueArray[2]);
+
+		assertNotNull(demoWrapperValueArray);
+		assertEquals(2, demoWrapperValueArray.length);
+		assertEquals(Double.valueOf(20.18), demoWrapperValueArray[0]);
+		assertEquals(Double.valueOf(12.27), demoWrapperValueArray[1]);
+
+		assertNotNull(demoStringValueArray);
+		assertEquals(2, demoStringValueArray.length);
+		assertEquals("Hello", demoStringValueArray[0]);
+		assertEquals("World", demoStringValueArray[1]);
 	}
 
 	@Test

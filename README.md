@@ -203,10 +203,16 @@ public class MyComponent {
 	@Value("20181226")
 	private int myInt;
 	
+	@Value("2018.1227")
+	private Double myDouble;
+	
 	@Value("Hello World!")
 	private String myString;
+	
+	@Value({ "2018", "12", "27" })
+	private short[] myArray;
 	
 }
 ```
 
-Currently [@Value](https://github.com/tothalex95/dependency-injector/blob/master/src/main/java/hu/alextoth/injector/annotation/Value.java) can be used for primitive data types and String. Soon it will support arrays of primitive data types too.
+[@Value](https://github.com/tothalex95/dependency-injector/blob/master/src/main/java/hu/alextoth/injector/annotation/Value.java) can be used for primitive data types, String, String arrays and arrays of primitive data types.

@@ -20,6 +20,7 @@ import hu.alextoth.injector.annotation.Configuration;
 import hu.alextoth.injector.annotation.Inject;
 import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.annotation.Value;
+import hu.alextoth.injector.util.ArrayUtils;
 import hu.alextoth.injector.util.ClassUtils;
 
 /**
@@ -315,9 +316,7 @@ public class AnnotationProcessorHelper {
 
 		getInjectableAnnotations().forEach(annotation -> injectableMethods.addAll(getMethodsAnnotatedWith(annotation)));
 
-		return injectableMethods.stream()
-				.filter(this::canBeUsedAsInjectableMethod)
-				.collect(Collectors.toSet());
+		return injectableMethods.stream().filter(this::canBeUsedAsInjectableMethod).collect(Collectors.toSet());
 	}
 
 	/**
@@ -333,9 +332,7 @@ public class AnnotationProcessorHelper {
 		getInjectAnnotations()
 				.forEach(annotation -> injectConstructors.addAll(getConstructorsAnnotatedWith(annotation)));
 
-		return injectConstructors.stream()
-				.filter(this::canBeUsedAsInjectConstructor)
-				.collect(Collectors.toSet());
+		return injectConstructors.stream().filter(this::canBeUsedAsInjectConstructor).collect(Collectors.toSet());
 	}
 
 	/**
@@ -348,9 +345,7 @@ public class AnnotationProcessorHelper {
 
 		getInjectAnnotations().forEach(annotation -> injectFields.addAll(getFieldsAnnotatedWith(annotation)));
 
-		return injectFields.stream()
-				.filter(this::canBeUsedAsInjectField)
-				.collect(Collectors.toSet());
+		return injectFields.stream().filter(this::canBeUsedAsInjectField).collect(Collectors.toSet());
 	}
 
 	/**
@@ -363,9 +358,7 @@ public class AnnotationProcessorHelper {
 
 		getInjectAnnotations().forEach(annotation -> injectMethods.addAll(getMethodsAnnotatedWith(annotation)));
 
-		return injectMethods.stream()
-				.filter(this::canBeUsedAsInjectMethod)
-				.collect(Collectors.toSet());
+		return injectMethods.stream().filter(this::canBeUsedAsInjectMethod).collect(Collectors.toSet());
 	}
 
 	/**
@@ -378,9 +371,7 @@ public class AnnotationProcessorHelper {
 
 		getValueAnnotations().forEach(annotation -> valueFields.addAll(getFieldsAnnotatedWith(annotation)));
 
-		return valueFields.stream()
-				.filter(this::canBeUsedAsValueField)
-				.collect(Collectors.toSet());
+		return valueFields.stream().filter(this::canBeUsedAsValueField).collect(Collectors.toSet());
 	}
 
 	/**
@@ -399,11 +390,8 @@ public class AnnotationProcessorHelper {
 
 		annotatedAnnotations = Sets.newHashSet(annotation);
 
-		annotatedAnnotations
-				.addAll(reflections.getTypesAnnotatedWith(annotation).stream()
-						.filter(Class::isAnnotation)
-						.map(clazz -> (Class<? extends Annotation>) clazz)
-						.collect(Collectors.toSet()));
+		annotatedAnnotations.addAll(reflections.getTypesAnnotatedWith(annotation).stream().filter(Class::isAnnotation)
+				.map(clazz -> (Class<? extends Annotation>) clazz).collect(Collectors.toSet()));
 
 		annotations.put(annotation, annotatedAnnotations);
 
@@ -417,8 +405,7 @@ public class AnnotationProcessorHelper {
 	 * @return A set of classes annotated with the given annotation.
 	 */
 	private Set<Class<?>> getClassesAnnotatedWith(Class<? extends Annotation> annotation) {
-		return reflections.getTypesAnnotatedWith(annotation).stream()
-				.filter(clazz -> !clazz.isAnnotation())
+		return reflections.getTypesAnnotatedWith(annotation).stream().filter(clazz -> !clazz.isAnnotation())
 				.collect(Collectors.toSet());
 	}
 
@@ -440,8 +427,7 @@ public class AnnotationProcessorHelper {
 	 */
 	private Set<Constructor<?>> getConstructorsAnnotatedWith(Class<? extends Annotation> annotation) {
 		return reflections.getConstructorsAnnotatedWith(annotation).stream()
-				.map(constructor -> (Constructor<?>) constructor)
-				.collect(Collectors.toSet());
+				.map(constructor -> (Constructor<?>) constructor).collect(Collectors.toSet());
 	}
 
 	/**
@@ -513,7 +499,9 @@ public class AnnotationProcessorHelper {
 	 */
 	private boolean canBeUsedAsValueField(Field field) {
 		return isComponentClass(field.getDeclaringClass())
-				&& (ClassUtils.isPrimitiveOrWrapper(field.getType()) || String.class.isAssignableFrom(field.getType()));
+				&& (ClassUtils.isPrimitiveOrWrapper(field.getType()) || String.class.isAssignableFrom(field.getType())
+						|| ArrayUtils.isPrimitiveOrWrapperArray(field.getType())
+						|| String[].class.isAssignableFrom(field.getType()));
 	}
 
 }

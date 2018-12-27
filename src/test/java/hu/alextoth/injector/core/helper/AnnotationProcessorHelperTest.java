@@ -21,6 +21,7 @@ import org.reflections.Reflections;
 
 import com.google.common.collect.Sets;
 
+import hu.alextoth.injector.DependencyInjectorTest;
 import hu.alextoth.injector.annotation.Alias;
 import hu.alextoth.injector.annotation.Component;
 import hu.alextoth.injector.annotation.Configuration;
@@ -29,7 +30,6 @@ import hu.alextoth.injector.annotation.Injectable;
 import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.core.AnnotationProcessorTest;
 import hu.alextoth.injector.core.MockitoExtension;
-import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
 import hu.alextoth.injector.demo.ConfigClass;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoAnnotation2;
@@ -94,7 +94,10 @@ public class AnnotationProcessorHelperTest {
 		Mockito.when(reflections.getFieldsAnnotatedWith(Value.class))
 				.thenReturn(Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoBooleanValue"),
 						AnnotationProcessorTest.class.getDeclaredField("demoStringValue"),
-						InjectsWithoutComponent.class.getDeclaredField("demoStringValue")));
+						InjectsWithoutComponent.class.getDeclaredField("demoStringValue"),
+						DependencyInjectorTest.class.getDeclaredField("demoPrimitiveValueArray"),
+						DependencyInjectorTest.class.getDeclaredField("demoWrapperValueArray"),
+						DependencyInjectorTest.class.getDeclaredField("demoStringValueArray")));
 
 		Mockito.when(reflections.getMethodsAnnotatedWith(Inject.class)).thenReturn(Sets.newHashSet(
 				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class),
@@ -261,15 +264,20 @@ public class AnnotationProcessorHelperTest {
 
 	@Test
 	public void testIsValueField() throws NoSuchFieldException, SecurityException {
-		assertEquals(true,
-				annotationProcessorHelper
-						.isValueField(AnnotationProcessorTest.class.getDeclaredField("demoBooleanValue")));
+		assertEquals(true, annotationProcessorHelper
+				.isValueField(AnnotationProcessorTest.class.getDeclaredField("demoBooleanValue")));
 		assertEquals(true, annotationProcessorHelper
 				.isValueField(AnnotationProcessorTest.class.getDeclaredField("demoStringValue")));
 		assertEquals(false, annotationProcessorHelper
 				.isValueField(InjectsWithoutComponent.class.getDeclaredField("demoStringValue")));
 		assertEquals(false, annotationProcessorHelper
 				.isValueField(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne")));
+		assertEquals(true, annotationProcessorHelper
+				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoPrimitiveValueArray")));
+		assertEquals(true, annotationProcessorHelper
+				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoWrapperValueArray")));
+		assertEquals(true, annotationProcessorHelper
+				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoStringValueArray")));
 	}
 
 	@Test
@@ -326,7 +334,10 @@ public class AnnotationProcessorHelperTest {
 	@Test
 	public void testGetValueFields() throws NoSuchFieldException, SecurityException {
 		Set<Field> valueFields = Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoBooleanValue"),
-				AnnotationProcessorTest.class.getDeclaredField("demoStringValue"));
+				AnnotationProcessorTest.class.getDeclaredField("demoStringValue"),
+				DependencyInjectorTest.class.getDeclaredField("demoPrimitiveValueArray"),
+				DependencyInjectorTest.class.getDeclaredField("demoWrapperValueArray"),
+				DependencyInjectorTest.class.getDeclaredField("demoStringValueArray"));
 
 		assertEquals(true, annotationProcessorHelper.getValueFields().containsAll(valueFields));
 		assertEquals(true, valueFields.containsAll(annotationProcessorHelper.getValueFields()));

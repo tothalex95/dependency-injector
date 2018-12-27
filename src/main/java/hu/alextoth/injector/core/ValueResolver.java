@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
+import hu.alextoth.injector.util.ArrayUtils;
 import hu.alextoth.injector.util.ClassUtils;
 
 /**
@@ -34,9 +35,8 @@ public class ValueResolver {
 	public Object getValueOf(Field field) {
 		Annotation valueAnnotation = Arrays.stream(field.getAnnotations())
 				.filter(annotation -> annotationProcessorHelper.isValueAnnotation(annotation.annotationType()))
-				.findFirst()
-				.orElse(null);
-		
+				.findFirst().orElse(null);
+
 		if (valueAnnotation == null) {
 			return ClassUtils.getDefaultValueForPrimitive(field.getType());
 		}
@@ -61,9 +61,12 @@ public class ValueResolver {
 		try {
 			Method valueAttribute = valueClass.getMethod(valueAttributeName);
 
-			String stringValue = String.valueOf(valueAttribute.invoke(valueInstance));
+			String[] stringValues = (String[]) valueAttribute.invoke(valueInstance);
 
-			return ClassUtils.convertToPrimitive(clazz, stringValue);
+			if (clazz.isArray()) {
+				return ArrayUtils.convertToPrimitiveArray(clazz.getComponentType(), stringValues);
+			}
+			return ClassUtils.convertToPrimitive(clazz, stringValues[0]);
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			throw new IllegalArgumentException(

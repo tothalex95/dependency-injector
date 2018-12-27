@@ -14,6 +14,6 @@ import hu.alextoth.injector.annotation.Value;
 @Value(value = "value", valueAttributeName = "valueAttribute")
 public @interface DemoValue {
 
-	String valueAttribute();
+	String[] valueAttribute();
 
 }
