@@ -32,8 +32,23 @@ public class ConfigClass {
 	}
 
 	@Injectable(alias = "getShort")
-	public short getShort() {
+	public static short getShort() {
 		return (short) 2018;
+	}
+
+	@DemoAnnotation
+	public static DemoInjectableFour getDemoInjectableFour() {
+		return new DemoInjectableFourImpl();
+	}
+
+	@Injectable(alias = "staticOne")
+	public static DemoInjectableOne getStaticDemoInjectableOne() {
+		return new DemoInjectableOne(2018, "Static DemoInjectableOne");
+	}
+
+	@Injectable(alias = "staticNine")
+	public static DemoInjectableNine getStaticDemoInjectableNine() {
+		return new DemoInjectableNine(getStaticDemoInjectableOne());
 	}
 
 }

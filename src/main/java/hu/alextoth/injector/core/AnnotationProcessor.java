@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
 
@@ -64,7 +65,10 @@ public class AnnotationProcessor {
 				.getSortedInjectableMethods(annotationProcessorHelper.getInjectableMethods());
 
 		for (Method method : sortedInjectableMethods) {
-			Object configurationInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
+			Object configurationInstance = null;
+			if (!Modifier.isStatic(method.getModifiers())) {
+				configurationInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
+			}
 
 			method.setAccessible(true);
 			try {
@@ -73,7 +77,7 @@ public class AnnotationProcessor {
 						method.invoke(configurationInstance, parameterInstances),
 						dependencyAliasResolver.getAliases(method));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				throw new AnnotationProcessingException(String.format("Cannot process Injectable: %s", method));
+				throw new AnnotationProcessingException(String.format("Cannot process Injectable: %s", method), e);
 			}
 		}
 	}
@@ -127,7 +131,10 @@ public class AnnotationProcessor {
 				.getSortedInjectFields(annotationProcessorHelper.getInjectFields());
 
 		for (Field field : sortedInjectFields) {
-			Object componentInstance = dependencyHandler.getInstanceOf(field.getDeclaringClass());
+			Object componentInstance = null;
+			if (!Modifier.isStatic(field.getModifiers())) {
+				componentInstance = dependencyHandler.getInstanceOf(field.getDeclaringClass());
+			}
 
 			field.setAccessible(true);
 			try {
@@ -151,7 +158,10 @@ public class AnnotationProcessor {
 				.getSortedInjectMethods(annotationProcessorHelper.getInjectMethods());
 
 		for (Method method : sortedInjectMethods) {
-			Object componentInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
+			Object componentInstance = null;
+			if (!Modifier.isStatic(method.getModifiers())) {
+				componentInstance = dependencyHandler.getInstanceOf(method.getDeclaringClass());
+			}
 
 			method.setAccessible(true);
 			try {
@@ -171,7 +181,10 @@ public class AnnotationProcessor {
 		Set<Field> valueFields = annotationProcessorHelper.getValueFields();
 
 		for (Field field : valueFields) {
-			Object componentInstance = dependencyHandler.getInstanceOf(field.getDeclaringClass());
+			Object componentInstance = null;
+			if (!Modifier.isStatic(field.getModifiers())) {
+				componentInstance = dependencyHandler.getInstanceOf(field.getDeclaringClass());
+			}
 
 			field.setAccessible(true);
 			try {

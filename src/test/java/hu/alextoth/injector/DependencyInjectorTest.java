@@ -1,7 +1,9 @@
 package hu.alextoth.injector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.demo.DemoAnnotation;
 import hu.alextoth.injector.demo.DemoInjectConstructor2;
 import hu.alextoth.injector.demo.DemoInjectConstructor3;
+import hu.alextoth.injector.demo.DemoInjectableFour;
 import hu.alextoth.injector.demo.DemoInjectableNine;
 import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoInjectableThree;
@@ -70,6 +73,20 @@ public class DependencyInjectorTest {
 	@Value({ "Hello", "World" })
 	private static String[] demoStringValueArray;
 
+	@DemoAnnotation
+	private static DemoInjectableFour demoInjectableFour1;
+
+	@DemoAnnotation
+	private static DemoInjectableFour demoInjectableFour2;
+
+	@Inject
+	@Alias("staticOne")
+	private static DemoInjectableOne staticDemoInjectableOne;
+
+	@Inject
+	@Alias("staticNine")
+	private static DemoInjectableNine staticDemoInjectableNine;
+
 	private DependencyInjector dependencyInjector;
 
 	@BeforeEach
@@ -126,12 +143,22 @@ public class DependencyInjectorTest {
 		assertEquals(2, demoStringValueArray.length);
 		assertEquals("Hello", demoStringValueArray[0]);
 		assertEquals("World", demoStringValueArray[1]);
+
+		assertNotNull(demoInjectableFour1);
+		assertNotNull(demoInjectableFour2);
+		assertEquals(demoInjectableFour1, demoInjectableFour2);
+
+		assertNotNull(staticDemoInjectableOne);
+		assertNotNull(staticDemoInjectableNine);
+		assertNotNull(staticDemoInjectableNine.getDemoInjectableOne());
+		assertNotEquals(staticDemoInjectableOne, staticDemoInjectableNine.getDemoInjectableOne());
 	}
 
 	@Test
 	public void testGetInstanceOf() {
 		assertNotNull(dependencyInjector.getDependency(Object.class, Alias.DEFAULT_ALIAS));
 		assertEquals(demoInjectableOne, dependencyInjector.getDependency(DemoInjectableOne.class, "alias1"));
+		assertTrue(dependencyInjector.getDependency(DemoInjectableOne.class, Alias.DEFAULT_ALIAS).isDemoBoolean());
 	}
 
 }

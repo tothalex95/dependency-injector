@@ -9,13 +9,6 @@ public class AnnotationProcessingException extends RuntimeException {
 
 	/**
 	 * @param message
-	 */
-	public AnnotationProcessingException(String message) {
-		super(message);
-	}
-
-	/**
-	 * @param message
 	 * @param cause
 	 */
 	public AnnotationProcessingException(String message, Throwable cause) {

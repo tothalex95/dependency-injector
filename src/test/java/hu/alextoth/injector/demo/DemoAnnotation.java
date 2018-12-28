@@ -24,6 +24,6 @@ public @interface DemoAnnotation {
 
 	String name() default Alias.DEFAULT_ALIAS;
 
-	String[] names() default {};
+	String[] names() default Alias.DEFAULT_ALIAS;
 
 }
