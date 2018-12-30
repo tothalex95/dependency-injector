@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -280,6 +281,22 @@ public class AnnotationProcessorHelper {
 	}
 
 	/**
+	 * Returns a boolean value indicating whether the given parameter value must be
+	 * set or not.
+	 * 
+	 * @param parameter Parameter to check whether its value must be set or not.
+	 * @return A boolean value indicating whether the given parameter value must be
+	 *         set or not.
+	 */
+	public boolean isValueParameter(Parameter parameter) {
+		if (!canBeUsedAsValueParameter(parameter)) {
+			return false;
+		}
+		return Arrays.stream(parameter.getAnnotations())
+				.anyMatch(annotation -> isValueAnnotation(annotation.annotationType()));
+	}
+
+	/**
 	 * Returns a set of component classes.
 	 * 
 	 * @return A set of component classes.
@@ -502,6 +519,21 @@ public class AnnotationProcessorHelper {
 				&& (ClassUtils.isPrimitiveOrWrapper(field.getType()) || String.class.isAssignableFrom(field.getType())
 						|| ArrayUtils.isPrimitiveOrWrapperArray(field.getType())
 						|| String[].class.isAssignableFrom(field.getType()));
+	}
+
+	/**
+	 * Returns a boolean value indicating whether the given parameter value can be
+	 * set or not.
+	 * 
+	 * @param parameter Parameter to check whether its value can be set or not.
+	 * @return A boolean value indicating whether the given parameter value can be
+	 *         set or not.
+	 */
+	private boolean canBeUsedAsValueParameter(Parameter parameter) {
+		return ClassUtils.isPrimitiveOrWrapper(parameter.getType())
+				|| String.class.isAssignableFrom(parameter.getType())
+				|| ArrayUtils.isPrimitiveOrWrapperArray(parameter.getType())
+				|| String[].class.isAssignableFrom(parameter.getType());
 	}
 
 }

@@ -1,6 +1,8 @@
 package hu.alextoth.injector.core.helper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -278,6 +280,24 @@ public class AnnotationProcessorHelperTest {
 				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoWrapperValueArray")));
 		assertEquals(true, annotationProcessorHelper
 				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoStringValueArray")));
+	}
+
+	@Test
+	public void testIsValueParameter() throws NoSuchMethodException, SecurityException {
+		assertTrue(annotationProcessorHelper
+				.isValueParameter(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne",
+						Integer.class, String.class, float[].class, String[].class).getParameters()[0]));
+		assertTrue(annotationProcessorHelper
+				.isValueParameter(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne",
+						Integer.class, String.class, float[].class, String[].class).getParameters()[1]));
+		assertTrue(annotationProcessorHelper
+				.isValueParameter(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne",
+						Integer.class, String.class, float[].class, String[].class).getParameters()[2]));
+		assertTrue(annotationProcessorHelper
+				.isValueParameter(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne",
+						Integer.class, String.class, float[].class, String[].class).getParameters()[3]));
+		assertFalse(annotationProcessorHelper.isValueParameter(ConfigClass.class
+				.getDeclaredMethod("getDemoInjectableNine2", DemoInjectableOne.class).getParameters()[0]));
 	}
 
 	@Test

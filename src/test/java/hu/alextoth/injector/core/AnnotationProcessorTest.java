@@ -209,6 +209,10 @@ public class AnnotationProcessorTest {
 				.thenReturn(new Object[] { demoInjectableOne12 });
 		Mockito.when(dependencyHandler.resolveParametersOf(ConfigClass.class.getDeclaredMethod("getShort")))
 				.thenReturn(emptyObjectArray);
+		Mockito.when(dependencyHandler.resolveParametersOf(
+				ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne", Integer.class, String.class,
+						float[].class, String[].class)))
+				.thenReturn(new Object[] { null, null, null, null });
 		Mockito.when(dependencyHandler.resolveParametersOf(AnnotationProcessorTest.class.getDeclaredConstructor()))
 				.thenReturn(emptyObjectArray);
 		Mockito.when(dependencyHandler.resolveParametersOf(

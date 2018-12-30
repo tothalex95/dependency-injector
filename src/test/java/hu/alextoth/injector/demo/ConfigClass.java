@@ -1,6 +1,7 @@
 package hu.alextoth.injector.demo;
 
 import hu.alextoth.injector.annotation.Injectable;
+import hu.alextoth.injector.annotation.Value;
 
 @DemoAnnotation
 public class ConfigClass {
@@ -49,6 +50,13 @@ public class ConfigClass {
 	@Injectable(alias = "staticNine")
 	public static DemoInjectableNine getStaticDemoInjectableNine() {
 		return new DemoInjectableNine(getStaticDemoInjectableOne());
+	}
+
+	@Injectable(alias = "valueInjectedOne")
+	public DemoInjectableOne getValueInjectedDemoInjectableOne(@Value("20181230") Integer integer,
+			@Value("Happy New Year!") String string, @Value({ "2018", "12.30" }) float[] floats,
+			@Value("2018.12.30.") String[] strings) {
+		return new DemoInjectableOne(integer, string);
 	}
 
 }
