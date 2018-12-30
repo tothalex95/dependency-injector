@@ -119,7 +119,7 @@ public class AnnotationProcessorHelperTest {
 	public void testGetComponentAnnotations() {
 		Set<Class<? extends Annotation>> componentAnnotations = Sets.newHashSet(Component.class, DemoAnnotation.class);
 
-		assertEquals(true, annotationProcessorHelper.getComponentAnnotations().containsAll(componentAnnotations));
+		assertTrue(annotationProcessorHelper.getComponentAnnotations().containsAll(componentAnnotations));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -128,8 +128,7 @@ public class AnnotationProcessorHelperTest {
 		Set<Class<? extends Annotation>> configurationAnnotations = Sets.newHashSet(Configuration.class,
 				DemoAnnotation.class);
 
-		assertEquals(true,
-				annotationProcessorHelper.getConfigurationAnnotations().containsAll(configurationAnnotations));
+		assertTrue(annotationProcessorHelper.getConfigurationAnnotations().containsAll(configurationAnnotations));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -138,7 +137,7 @@ public class AnnotationProcessorHelperTest {
 		Set<Class<? extends Annotation>> injectableAnnotations = Sets.newHashSet(Injectable.class,
 				DemoAnnotation.class);
 
-		assertEquals(true, annotationProcessorHelper.getInjectableAnnotations().containsAll(injectableAnnotations));
+		assertTrue(annotationProcessorHelper.getInjectableAnnotations().containsAll(injectableAnnotations));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -146,7 +145,7 @@ public class AnnotationProcessorHelperTest {
 	public void testGetInjectAnnotations() {
 		Set<Class<? extends Annotation>> injectAnnotations = Sets.newHashSet(Inject.class, DemoAnnotation.class);
 
-		assertEquals(true, annotationProcessorHelper.getInjectAnnotations().containsAll(injectAnnotations));
+		assertTrue(annotationProcessorHelper.getInjectAnnotations().containsAll(injectAnnotations));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -154,9 +153,9 @@ public class AnnotationProcessorHelperTest {
 	public void testGetAliasAnnotations() {
 		Set<Class<? extends Annotation>> aliasAnnotations = Sets.newHashSet(Alias.class, DemoAnnotation.class);
 
-		assertEquals(true, annotationProcessorHelper.getAliasAnnotations().containsAll(aliasAnnotations));
+		assertTrue(annotationProcessorHelper.getAliasAnnotations().containsAll(aliasAnnotations));
 
-		assertEquals(true, aliasAnnotations.containsAll(annotationProcessorHelper.getAliasAnnotations()));
+		assertTrue(aliasAnnotations.containsAll(annotationProcessorHelper.getAliasAnnotations()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -164,121 +163,121 @@ public class AnnotationProcessorHelperTest {
 	public void testGetValueAnnotations() {
 		Set<Class<? extends Annotation>> valueAnnotations = Sets.newHashSet(Value.class);
 
-		assertEquals(true, annotationProcessorHelper.getValueAnnotations().containsAll(valueAnnotations));
+		assertTrue(annotationProcessorHelper.getValueAnnotations().containsAll(valueAnnotations));
 
-		assertEquals(true, valueAnnotations.containsAll(annotationProcessorHelper.getValueAnnotations()));
+		assertTrue(valueAnnotations.containsAll(annotationProcessorHelper.getValueAnnotations()));
 	}
 
 	@Test
 	public void testIsComponentAnnotation() {
-		assertEquals(true, annotationProcessorHelper.isComponentAnnotation(Component.class));
-		assertEquals(true, annotationProcessorHelper.isComponentAnnotation(DemoAnnotation.class));
-		assertEquals(false, annotationProcessorHelper.isComponentAnnotation(Test.class));
+		assertTrue(annotationProcessorHelper.isComponentAnnotation(Component.class));
+		assertTrue(annotationProcessorHelper.isComponentAnnotation(DemoAnnotation.class));
+		assertFalse(annotationProcessorHelper.isComponentAnnotation(Test.class));
 	}
 
 	@Test
 	public void testIsConfigurationAnnotation() {
-		assertEquals(true, annotationProcessorHelper.isConfigurationAnnotation(Configuration.class));
-		assertEquals(true, annotationProcessorHelper.isConfigurationAnnotation(DemoAnnotation.class));
-		assertEquals(false, annotationProcessorHelper.isConfigurationAnnotation(Test.class));
+		assertTrue(annotationProcessorHelper.isConfigurationAnnotation(Configuration.class));
+		assertTrue(annotationProcessorHelper.isConfigurationAnnotation(DemoAnnotation.class));
+		assertFalse(annotationProcessorHelper.isConfigurationAnnotation(Test.class));
 	}
 
 	@Test
 	public void testIsInjectableAnnotation() {
-		assertEquals(true, annotationProcessorHelper.isInjectableAnnotation(Injectable.class));
-		assertEquals(true, annotationProcessorHelper.isInjectableAnnotation(DemoAnnotation.class));
-		assertEquals(false, annotationProcessorHelper.isInjectableAnnotation(Test.class));
+		assertTrue(annotationProcessorHelper.isInjectableAnnotation(Injectable.class));
+		assertTrue(annotationProcessorHelper.isInjectableAnnotation(DemoAnnotation.class));
+		assertFalse(annotationProcessorHelper.isInjectableAnnotation(Test.class));
 	}
 
 	@Test
 	public void testIsInjectAnnotation() {
-		assertEquals(true, annotationProcessorHelper.isInjectAnnotation(Inject.class));
-		assertEquals(true, annotationProcessorHelper.isInjectAnnotation(DemoAnnotation.class));
-		assertEquals(false, annotationProcessorHelper.isInjectAnnotation(Test.class));
+		assertTrue(annotationProcessorHelper.isInjectAnnotation(Inject.class));
+		assertTrue(annotationProcessorHelper.isInjectAnnotation(DemoAnnotation.class));
+		assertFalse(annotationProcessorHelper.isInjectAnnotation(Test.class));
 	}
 
 	@Test
 	public void testIsAliasAnnotation() {
-		assertEquals(true, annotationProcessorHelper.isAliasAnnotation(Alias.class));
-		assertEquals(true, annotationProcessorHelper.isAliasAnnotation(DemoAnnotation.class));
-		assertEquals(false, annotationProcessorHelper.isAliasAnnotation(Test.class));
+		assertTrue(annotationProcessorHelper.isAliasAnnotation(Alias.class));
+		assertTrue(annotationProcessorHelper.isAliasAnnotation(DemoAnnotation.class));
+		assertFalse(annotationProcessorHelper.isAliasAnnotation(Test.class));
 	}
 
 	@Test
 	public void testIsValueAnnotation() {
-		assertEquals(true, annotationProcessorHelper.isValueAnnotation(Value.class));
-		assertEquals(false, annotationProcessorHelper.isValueAnnotation(Test.class));
+		assertTrue(annotationProcessorHelper.isValueAnnotation(Value.class));
+		assertFalse(annotationProcessorHelper.isValueAnnotation(Test.class));
 	}
 
 	@Test
 	public void testIsComponentClass() {
-		assertEquals(true, annotationProcessorHelper.isComponentClass(DemoInjectableTwo.class));
-		assertEquals(false, annotationProcessorHelper.isComponentClass(AnnotationProcessorHelperTest.class));
+		assertTrue(annotationProcessorHelper.isComponentClass(DemoInjectableTwo.class));
+		assertFalse(annotationProcessorHelper.isComponentClass(AnnotationProcessorHelperTest.class));
 	}
 
 	@Test
 	public void testIsConfigurationClass() {
-		assertEquals(true, annotationProcessorHelper.isConfigurationClass(ConfigClass.class));
-		assertEquals(false, annotationProcessorHelper.isConfigurationClass(AnnotationProcessorHelperTest.class));
+		assertTrue(annotationProcessorHelper.isConfigurationClass(ConfigClass.class));
+		assertFalse(annotationProcessorHelper.isConfigurationClass(AnnotationProcessorHelperTest.class));
 	}
 
 	@Test
 	public void testIsInjectableMethod() throws NoSuchMethodException, SecurityException {
-		assertEquals(true,
+		assertTrue(
 				annotationProcessorHelper.isInjectableMethod(ConfigClass.class.getMethod("getDemoInjectableOne")));
 		assertEquals(true,
 				annotationProcessorHelper.isInjectableMethod(ConfigClass.class.getMethod("getNamedDemoInjectableOne")));
-		assertEquals(false, annotationProcessorHelper
+		assertFalse(annotationProcessorHelper
 				.isInjectableMethod(InjectablesWithoutConfiguration.class.getMethod("demoInjectableOne")));
-		assertEquals(false, annotationProcessorHelper
+		assertFalse(annotationProcessorHelper
 				.isInjectableMethod(AnnotationProcessorHelperTest.class.getMethod("testIsInjectableMethod")));
-		assertEquals(false, annotationProcessorHelper.isInjectableMethod(
+		assertFalse(annotationProcessorHelper.isInjectableMethod(
 				AnnotationProcessorTest.class.getMethod("setDemoInjectableThree", DemoInjectableThree.class)));
 	}
 
 	@Test
 	public void testIsInjectConstructor() throws NoSuchMethodException, SecurityException {
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isInjectConstructor(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class)));
-		assertEquals(false, annotationProcessorHelper
+		assertFalse(annotationProcessorHelper
 				.isInjectConstructor(InjectsWithoutComponent.class.getDeclaredConstructor(DemoInjectableTwo.class)));
 	}
 
 	@Test
 	public void testIsInjectField() throws NoSuchFieldException, SecurityException {
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isInjectField(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne")));
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isInjectField(AnnotationProcessorTest.class.getDeclaredField("demoInjectableFive")));
-		assertEquals(false, annotationProcessorHelper
+		assertFalse(annotationProcessorHelper
 				.isInjectField(InjectsWithoutComponent.class.getDeclaredField("demoInjectableOne")));
 	}
 
 	@Test
 	public void testIsInjectMethod() throws NoSuchMethodException, SecurityException {
-		assertEquals(true, annotationProcessorHelper.isInjectMethod(
+		assertTrue(annotationProcessorHelper.isInjectMethod(
 				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class)));
-		assertEquals(true, annotationProcessorHelper.isInjectMethod(
+		assertTrue(annotationProcessorHelper.isInjectMethod(
 				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class)));
-		assertEquals(false, annotationProcessorHelper.isInjectMethod(
+		assertFalse(annotationProcessorHelper.isInjectMethod(
 				InjectsWithoutComponent.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class)));
 	}
 
 	@Test
 	public void testIsValueField() throws NoSuchFieldException, SecurityException {
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isValueField(AnnotationProcessorTest.class.getDeclaredField("demoBooleanValue")));
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isValueField(AnnotationProcessorTest.class.getDeclaredField("demoStringValue")));
-		assertEquals(false, annotationProcessorHelper
+		assertFalse(annotationProcessorHelper
 				.isValueField(InjectsWithoutComponent.class.getDeclaredField("demoStringValue")));
-		assertEquals(false, annotationProcessorHelper
+		assertFalse(annotationProcessorHelper
 				.isValueField(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne")));
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoPrimitiveValueArray")));
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoWrapperValueArray")));
-		assertEquals(true, annotationProcessorHelper
+		assertTrue(annotationProcessorHelper
 				.isValueField(DependencyInjectorTest.class.getDeclaredField("demoStringValueArray")));
 	}
 
@@ -304,14 +303,14 @@ public class AnnotationProcessorHelperTest {
 	public void testGetComponentClasses() {
 		Set<Class<?>> componentClasses = Sets.newHashSet(DemoInjectableTwo.class);
 
-		assertEquals(true, annotationProcessorHelper.getComponentClasses().containsAll(componentClasses));
+		assertTrue(annotationProcessorHelper.getComponentClasses().containsAll(componentClasses));
 	}
 
 	@Test
 	public void testGetConfigurationClasses() {
 		Set<Class<?>> configurationClasses = Sets.newHashSet(ConfigClass.class);
 
-		assertEquals(true, annotationProcessorHelper.getConfigurationClasses().containsAll(configurationClasses));
+		assertTrue(annotationProcessorHelper.getConfigurationClasses().containsAll(configurationClasses));
 	}
 
 	@Test
@@ -319,8 +318,8 @@ public class AnnotationProcessorHelperTest {
 		Set<Method> injectableMethods = Arrays.stream(ConfigClass.class.getDeclaredMethods())
 				.filter(method -> !method.isSynthetic()).collect(Collectors.toSet());
 
-		assertEquals(true, annotationProcessorHelper.getInjectableMethods().containsAll(injectableMethods));
-		assertEquals(true, injectableMethods.containsAll(annotationProcessorHelper.getInjectableMethods()));
+		assertTrue(annotationProcessorHelper.getInjectableMethods().containsAll(injectableMethods));
+		assertTrue(injectableMethods.containsAll(annotationProcessorHelper.getInjectableMethods()));
 	}
 
 	@Test
@@ -328,8 +327,8 @@ public class AnnotationProcessorHelperTest {
 		Set<Constructor<?>> injectConstructors = Sets
 				.newHashSet(DemoInjectableTwo.class.getDeclaredConstructor(DemoInjectableOne.class));
 
-		assertEquals(true, annotationProcessorHelper.getInjectConstructors().containsAll(injectConstructors));
-		assertEquals(true, injectConstructors.containsAll(annotationProcessorHelper.getInjectConstructors()));
+		assertTrue(annotationProcessorHelper.getInjectConstructors().containsAll(injectConstructors));
+		assertTrue(injectConstructors.containsAll(annotationProcessorHelper.getInjectConstructors()));
 	}
 
 	@Test
@@ -337,8 +336,8 @@ public class AnnotationProcessorHelperTest {
 		Set<Field> injectFields = Sets.newHashSet(AnnotationProcessorTest.class.getDeclaredField("demoInjectableOne"),
 				AnnotationProcessorTest.class.getDeclaredField("demoInjectableFive"));
 
-		assertEquals(true, annotationProcessorHelper.getInjectFields().containsAll(injectFields));
-		assertEquals(true, injectFields.containsAll(annotationProcessorHelper.getInjectFields()));
+		assertTrue(annotationProcessorHelper.getInjectFields().containsAll(injectFields));
+		assertTrue(injectFields.containsAll(annotationProcessorHelper.getInjectFields()));
 	}
 
 	@Test
@@ -347,8 +346,8 @@ public class AnnotationProcessorHelperTest {
 				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableOne", DemoInjectableOne.class),
 				AnnotationProcessorTest.class.getDeclaredMethod("setDemoInjectableThree", DemoInjectableThree.class));
 
-		assertEquals(true, annotationProcessorHelper.getInjectMethods().containsAll(injectMethods));
-		assertEquals(true, injectMethods.containsAll(annotationProcessorHelper.getInjectMethods()));
+		assertTrue(annotationProcessorHelper.getInjectMethods().containsAll(injectMethods));
+		assertTrue(injectMethods.containsAll(annotationProcessorHelper.getInjectMethods()));
 	}
 
 	@Test
@@ -359,8 +358,8 @@ public class AnnotationProcessorHelperTest {
 				DependencyInjectorTest.class.getDeclaredField("demoWrapperValueArray"),
 				DependencyInjectorTest.class.getDeclaredField("demoStringValueArray"));
 
-		assertEquals(true, annotationProcessorHelper.getValueFields().containsAll(valueFields));
-		assertEquals(true, valueFields.containsAll(annotationProcessorHelper.getValueFields()));
+		assertTrue(annotationProcessorHelper.getValueFields().containsAll(valueFields));
+		assertTrue(valueFields.containsAll(annotationProcessorHelper.getValueFields()));
 	}
 
 }

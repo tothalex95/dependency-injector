@@ -1,7 +1,9 @@
 package hu.alextoth.injector.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,8 +13,8 @@ public class ClassUtilsTest {
 
 	@Test
 	public void testConvertToPrimitive() {
-		assertEquals(true, ClassUtils.convertToPrimitive(boolean.class, "true"));
-		assertEquals(true, ClassUtils.convertToPrimitive(Boolean.class, "true"));
+		assertTrue(ClassUtils.convertToPrimitive(boolean.class, "true"));
+		assertTrue(ClassUtils.convertToPrimitive(Boolean.class, "true"));
 
 		assertEquals(Byte.valueOf((byte) 20), ClassUtils.convertToPrimitive(byte.class, "20"));
 		assertEquals(Byte.valueOf((byte) 20), ClassUtils.convertToPrimitive(Byte.class, "20"));
@@ -74,37 +76,37 @@ public class ClassUtilsTest {
 
 	@Test
 	public void testIsConcrete() {
-		assertEquals(true, ClassUtils.isConcrete(Object.class));
-		assertEquals(false, ClassUtils.isConcrete(int.class));
-		assertEquals(false, ClassUtils.isConcrete(Integer.class));
-		assertEquals(false, ClassUtils.isConcrete(Comparable.class));
-		assertEquals(false, ClassUtils.isConcrete(DemoInjectableFive.class));
-		assertEquals(false, ClassUtils.isConcrete(Test.class));
-		assertEquals(false, ClassUtils.isConcrete(Object[].class));
-		assertEquals(false, ClassUtils.isConcrete(DemoEnum.class));
-		assertEquals(false, ClassUtils.isConcrete(null));
+		assertTrue(ClassUtils.isConcrete(Object.class));
+		assertFalse(ClassUtils.isConcrete(int.class));
+		assertFalse(ClassUtils.isConcrete(Integer.class));
+		assertFalse(ClassUtils.isConcrete(Comparable.class));
+		assertFalse(ClassUtils.isConcrete(DemoInjectableFive.class));
+		assertFalse(ClassUtils.isConcrete(Test.class));
+		assertFalse(ClassUtils.isConcrete(Object[].class));
+		assertFalse(ClassUtils.isConcrete(DemoEnum.class));
+		assertFalse(ClassUtils.isConcrete(null));
 	}
 
 	@Test
 	public void testIsPrimitive() {
-		assertEquals(true, ClassUtils.isPrimitive(int.class));
-		assertEquals(false, ClassUtils.isPrimitive(Integer.class));
-		assertEquals(false, ClassUtils.isPrimitive(Object.class));
-		assertEquals(false, ClassUtils.isPrimitive(null));
+		assertTrue(ClassUtils.isPrimitive(int.class));
+		assertFalse(ClassUtils.isPrimitive(Integer.class));
+		assertFalse(ClassUtils.isPrimitive(Object.class));
+		assertFalse(ClassUtils.isPrimitive(null));
 	}
 
 	@Test
 	public void testIsPrimitiveOrWrapper() {
-		assertEquals(true, ClassUtils.isPrimitiveOrWrapper(int.class));
-		assertEquals(true, ClassUtils.isPrimitiveOrWrapper(Integer.class));
-		assertEquals(false, ClassUtils.isPrimitiveOrWrapper(Object.class));
+		assertTrue(ClassUtils.isPrimitiveOrWrapper(int.class));
+		assertTrue(ClassUtils.isPrimitiveOrWrapper(Integer.class));
+		assertFalse(ClassUtils.isPrimitiveOrWrapper(Object.class));
 	}
 
 	@Test
 	public void testIsWrapper() {
-		assertEquals(false, ClassUtils.isWrapper(int.class));
-		assertEquals(true, ClassUtils.isWrapper(Integer.class));
-		assertEquals(false, ClassUtils.isWrapper(Object.class));
+		assertFalse(ClassUtils.isWrapper(int.class));
+		assertTrue(ClassUtils.isWrapper(Integer.class));
+		assertFalse(ClassUtils.isWrapper(Object.class));
 	}
 
 	private enum DemoEnum {

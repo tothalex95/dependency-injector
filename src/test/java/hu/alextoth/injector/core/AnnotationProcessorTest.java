@@ -3,6 +3,7 @@ package hu.alextoth.injector.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -278,7 +279,7 @@ public class AnnotationProcessorTest {
 		assertEquals(demoInjectableTwo.getDemoInjectableOne(),
 				demoInjectableThree.getDemoInjectableTwo().getDemoInjectableOne());
 
-		assertEquals(true, demoBooleanValue);
+		assertTrue(demoBooleanValue);
 		assertEquals(2018.1022, demoDoubleValue);
 		assertEquals("demoString", demoStringValue);
 	}
