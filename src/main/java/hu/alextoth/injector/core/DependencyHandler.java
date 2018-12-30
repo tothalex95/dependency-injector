@@ -32,14 +32,16 @@ public class DependencyHandler {
 	private final Reflections reflections;
 	private final AnnotationProcessorHelper annotationProcessorHelper;
 	private final DependencyAliasResolver dependencyAliasResolver;
+	private final ValueResolver valueResolver;
 
 	public DependencyHandler(Reflections reflections, AnnotationProcessorHelper annotationProcessorHelper,
-			DependencyAliasResolver dependencyAliasResolver) {
+			DependencyAliasResolver dependencyAliasResolver, ValueResolver valueResolver) {
 		dependencies = new HashMap<>();
 
 		this.reflections = reflections;
 		this.annotationProcessorHelper = annotationProcessorHelper;
 		this.dependencyAliasResolver = dependencyAliasResolver;
+		this.valueResolver = valueResolver;
 	}
 
 	/**
@@ -124,8 +126,9 @@ public class DependencyHandler {
 		Parameter[] parameters = executable.getParameters();
 		Object[] parameterInstances = new Object[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
-			parameterInstances[i] = getInstanceOf(parameters[i].getType(),
-					dependencyAliasResolver.getAlias(parameters[i]));
+			parameterInstances[i] = annotationProcessorHelper.isValueParameter(parameters[i])
+					? valueResolver.getValueOf(parameters[i])
+					: getInstanceOf(parameters[i].getType(), dependencyAliasResolver.getAlias(parameters[i]));
 		}
 		return parameterInstances;
 	}
@@ -182,8 +185,7 @@ public class DependencyHandler {
 		}
 
 		List<Class<? extends T>> suitableClasses = reflections.getSubTypesOf(clazz).stream()
-				.filter(ClassUtils::isConcrete)
-				.collect(Collectors.toList());
+				.filter(ClassUtils::isConcrete).collect(Collectors.toList());
 
 		int numberOfSuitableClasses = suitableClasses.size();
 		if (numberOfSuitableClasses == 0) {

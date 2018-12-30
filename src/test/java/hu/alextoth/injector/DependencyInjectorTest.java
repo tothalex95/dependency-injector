@@ -159,6 +159,10 @@ public class DependencyInjectorTest {
 		assertNotNull(dependencyInjector.getDependency(Object.class, Alias.DEFAULT_ALIAS));
 		assertEquals(demoInjectableOne, dependencyInjector.getDependency(DemoInjectableOne.class, "alias1"));
 		assertTrue(dependencyInjector.getDependency(DemoInjectableOne.class, Alias.DEFAULT_ALIAS).isDemoBoolean());
+		assertEquals(Integer.valueOf(20181230),
+				dependencyInjector.getDependency(DemoInjectableOne.class, "valueInjectedOne").getDemoInteger());
+		assertEquals("Happy New Year!",
+				dependencyInjector.getDependency(DemoInjectableOne.class, "valueInjectedOne").getDemoString());
 	}
 
 }
