@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 import hu.alextoth.injector.annotation.Value;
@@ -42,6 +43,26 @@ public class ValueResolver {
 		}
 
 		return extractValueOf(field.getType(), valueAnnotation);
+	}
+
+	/**
+	 * Returns the value of the {@link Value} annotation for the given parameter, or
+	 * a default value if it's not present.
+	 * 
+	 * @param parameter Parameter of which value must be returned.
+	 * @return The value of the {@link Value} annotation for the given parameter, or
+	 *         a default value if it's not present.
+	 */
+	public Object getValueOf(Parameter parameter) {
+		Annotation valueAnnotation = Arrays.stream(parameter.getAnnotations())
+				.filter(annotation -> annotationProcessorHelper.isValueAnnotation(annotation.annotationType()))
+				.findFirst().orElse(null);
+
+		if (valueAnnotation == null) {
+			return ClassUtils.getDefaultValueForPrimitive(parameter.getType());
+		}
+
+		return extractValueOf(parameter.getType(), valueAnnotation);
 	}
 
 	/**

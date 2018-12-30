@@ -14,6 +14,8 @@ import org.mockito.Mockito;
 
 import hu.alextoth.injector.annotation.Value;
 import hu.alextoth.injector.core.helper.AnnotationProcessorHelper;
+import hu.alextoth.injector.demo.ConfigClass;
+import hu.alextoth.injector.demo.DemoInjectableOne;
 import hu.alextoth.injector.demo.DemoValue;
 import hu.alextoth.injector.demo.DemoWrongValue;
 
@@ -105,7 +107,7 @@ public class ValueResolverTest {
 	}
 
 	@Test
-	public void testGetValueOf() throws NoSuchFieldException, SecurityException {
+	public void testGetValueOf() throws NoSuchFieldException, SecurityException, NoSuchMethodException {
 		assertEquals(true, valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoBoolean")));
 		assertEquals(true, valueResolver.getValueOf(ValueResolverTest.class.getDeclaredField("demoBoolean2")));
 
@@ -152,6 +154,24 @@ public class ValueResolverTest {
 		assertEquals(Integer.valueOf(2018), demoIntegerArray[0]);
 		assertEquals(Integer.valueOf(12), demoIntegerArray[1]);
 		assertEquals(Integer.valueOf(26), demoIntegerArray[2]);
+
+		assertEquals(Integer.valueOf(20181230),
+				valueResolver.getValueOf(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne",
+						Integer.class, String.class, float[].class, String[].class).getParameters()[0]));
+		assertEquals("Happy New Year!",
+				valueResolver.getValueOf(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne",
+						Integer.class, String.class, float[].class, String[].class).getParameters()[1]));
+		float[] floats = (float[]) valueResolver
+				.getValueOf(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne", Integer.class,
+						String.class, float[].class, String[].class).getParameters()[2]);
+		assertEquals(2018f, floats[0]);
+		assertEquals(12.30f, floats[1]);
+		String[] strings = (String[]) valueResolver
+				.getValueOf(ConfigClass.class.getDeclaredMethod("getValueInjectedDemoInjectableOne", Integer.class,
+						String.class, float[].class, String[].class).getParameters()[3]);
+		assertEquals("2018.12.30.", strings[0]);
+		assertEquals(0, valueResolver.getValueOf(
+				DemoInjectableOne.class.getDeclaredMethod("setDemoInteger", Integer.class).getParameters()[0]));
 	}
 
 }
