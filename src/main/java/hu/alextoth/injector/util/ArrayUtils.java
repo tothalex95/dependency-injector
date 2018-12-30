@@ -3,7 +3,21 @@ package hu.alextoth.injector.util;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class ArrayUtils {
+/**
+ * Array related utility methods.
+ * 
+ * @author Alex Toth
+ */
+public final class ArrayUtils {
+
+	private static final boolean[] EMPTY_BOOLEAN_ARRAY = new boolean[0];
+	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
+	private static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
+	private static final float[] EMPTY_FLOAT_ARRAY = new float[0];
+	private static final int[] EMPTY_INT_ARRAY = new int[0];
+	private static final long[] EMPTY_LONG_ARRAY = new long[0];
+	private static final short[] EMPTY_SHORT_ARRAY = new short[0];
 
 	private ArrayUtils() {
 	}
@@ -43,8 +57,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static boolean[] convertToPrimitiveArray(Boolean[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_BOOLEAN_ARRAY;
 		}
 
 		boolean[] convertedValues = new boolean[values.length];
@@ -63,8 +77,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static byte[] convertToPrimitiveArray(Byte[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_BYTE_ARRAY;
 		}
 
 		byte[] convertedValues = new byte[values.length];
@@ -83,8 +97,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static char[] convertToPrimitiveArray(Character[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_CHAR_ARRAY;
 		}
 
 		char[] convertedValues = new char[values.length];
@@ -103,8 +117,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static double[] convertToPrimitiveArray(Double[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_DOUBLE_ARRAY;
 		}
 
 		double[] convertedValues = new double[values.length];
@@ -123,8 +137,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static float[] convertToPrimitiveArray(Float[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_FLOAT_ARRAY;
 		}
 
 		float[] convertedValues = new float[values.length];
@@ -143,8 +157,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static int[] convertToPrimitiveArray(Integer[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_INT_ARRAY;
 		}
 
 		int[] convertedValues = new int[values.length];
@@ -163,8 +177,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static long[] convertToPrimitiveArray(Long[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_LONG_ARRAY;
 		}
 
 		long[] convertedValues = new long[values.length];
@@ -183,8 +197,8 @@ public class ArrayUtils {
 	 * @return An array of values converted to the appropriate primitive type.
 	 */
 	public static short[] convertToPrimitiveArray(Short[] values) {
-		if (values == null) {
-			return null;
+		if (values == null || values.length == 0) {
+			return EMPTY_SHORT_ARRAY;
 		}
 
 		short[] convertedValues = new short[values.length];

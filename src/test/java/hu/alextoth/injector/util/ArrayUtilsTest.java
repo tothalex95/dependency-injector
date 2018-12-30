@@ -2,7 +2,7 @@ package hu.alextoth.injector.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -68,14 +68,69 @@ public class ArrayUtilsTest {
 		assertThrows(IllegalArgumentException.class, () -> ArrayUtils.convertToPrimitiveArray(null, ""));
 		assertThrows(IllegalArgumentException.class, () -> ArrayUtils.convertToPrimitiveArray(Object.class, ""));
 
-		assertNull(ArrayUtils.convertToPrimitiveArray((Boolean[]) null));
-		assertNull(ArrayUtils.convertToPrimitiveArray((Byte[]) null));
-		assertNull(ArrayUtils.convertToPrimitiveArray((Character[]) null));
-		assertNull(ArrayUtils.convertToPrimitiveArray((Double[]) null));
-		assertNull(ArrayUtils.convertToPrimitiveArray((Float[]) null));
-		assertNull(ArrayUtils.convertToPrimitiveArray((Integer[]) null));
-		assertNull(ArrayUtils.convertToPrimitiveArray((Long[]) null));
-		assertNull(ArrayUtils.convertToPrimitiveArray((Short[]) null));
+		booleans = ArrayUtils.convertToPrimitiveArray((Boolean[]) null);
+		assertNotNull(booleans);
+		assertEquals(0, booleans.length);
+
+		booleans = ArrayUtils.convertToPrimitiveArray(new Boolean[0]);
+		assertNotNull(booleans);
+		assertEquals(0, booleans.length);
+
+		bytes = ArrayUtils.convertToPrimitiveArray((Byte[]) null);
+		assertNotNull(bytes);
+		assertEquals(0, bytes.length);
+
+		bytes = ArrayUtils.convertToPrimitiveArray(new Byte[0]);
+		assertNotNull(bytes);
+		assertEquals(0, bytes.length);
+
+		chars = ArrayUtils.convertToPrimitiveArray((Character[]) null);
+		assertNotNull(chars);
+		assertEquals(0, chars.length);
+
+		chars = ArrayUtils.convertToPrimitiveArray(new Character[0]);
+		assertNotNull(chars);
+		assertEquals(0, chars.length);
+
+		doubles = ArrayUtils.convertToPrimitiveArray((Double[]) null);
+		assertNotNull(doubles);
+		assertEquals(0, doubles.length);
+
+		doubles = ArrayUtils.convertToPrimitiveArray(new Double[0]);
+		assertNotNull(doubles);
+		assertEquals(0, doubles.length);
+
+		floats = ArrayUtils.convertToPrimitiveArray((Float[]) null);
+		assertNotNull(floats);
+		assertEquals(0, floats.length);
+
+		floats = ArrayUtils.convertToPrimitiveArray(new Float[0]);
+		assertNotNull(floats);
+		assertEquals(0, floats.length);
+
+		ints = ArrayUtils.convertToPrimitiveArray((Integer[]) null);
+		assertNotNull(ints);
+		assertEquals(0, ints.length);
+
+		ints = ArrayUtils.convertToPrimitiveArray(new Integer[0]);
+		assertNotNull(ints);
+		assertEquals(0, ints.length);
+
+		longs = ArrayUtils.convertToPrimitiveArray((Long[]) null);
+		assertNotNull(longs);
+		assertEquals(0, longs.length);
+
+		longs = ArrayUtils.convertToPrimitiveArray(new Long[0]);
+		assertNotNull(longs);
+		assertEquals(0, longs.length);
+
+		shorts = ArrayUtils.convertToPrimitiveArray((Short[]) null);
+		assertNotNull(shorts);
+		assertEquals(0, shorts.length);
+
+		shorts = ArrayUtils.convertToPrimitiveArray(new Short[0]);
+		assertNotNull(shorts);
+		assertEquals(0, shorts.length);
 	}
 
 	@Test
