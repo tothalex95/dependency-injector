@@ -153,8 +153,8 @@ public final class ClassUtils {
 	 *         not.
 	 */
 	public static boolean isConcrete(Class<?> clazz) {
-		return clazz != null && !(clazz.isPrimitive() || clazz.isInterface() || clazz.isAnnotation() || clazz.isArray()
-				|| clazz.isEnum() || isWrapper(clazz) || Modifier.isAbstract(clazz.getModifiers()));
+		return clazz != null && !(isPrimitiveOrWrapper(clazz) || clazz.isAnnotation() || clazz.isInterface()
+				|| clazz.isArray() || clazz.isEnum() || Modifier.isAbstract(clazz.getModifiers()));
 	}
 
 	/**

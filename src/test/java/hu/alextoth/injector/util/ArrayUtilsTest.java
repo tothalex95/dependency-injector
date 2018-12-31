@@ -63,8 +63,9 @@ public class ArrayUtilsTest {
 			assertEquals(booleanValues[i], Boolean.toString(booleans[i]));
 		}
 
-		assertThrows(IllegalArgumentException.class, () -> ArrayUtils.convertToPrimitiveArray(null, null));
-		assertThrows(IllegalArgumentException.class, () -> ArrayUtils.convertToPrimitiveArray(int.class, null));
+		assertThrows(IllegalArgumentException.class, () -> ArrayUtils.convertToPrimitiveArray(null, (String[]) null));
+		assertThrows(IllegalArgumentException.class,
+				() -> ArrayUtils.convertToPrimitiveArray(int.class, (String[]) null));
 		assertThrows(IllegalArgumentException.class, () -> ArrayUtils.convertToPrimitiveArray(null, ""));
 		assertThrows(IllegalArgumentException.class, () -> ArrayUtils.convertToPrimitiveArray(Object.class, ""));
 

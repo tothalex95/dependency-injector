@@ -162,15 +162,21 @@ public class DependencyHandlerTest {
 	@Test
 	public void testRegisterInstanceOf() {
 		DemoInjectableOne demoInjectableOne = new DemoInjectableOne(1995, "Alex");
+		DemoInjectableTwo demoInjectableTwo = new DemoInjectableTwo(demoInjectableOne);
 
 		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne);
 		dependencyHandler.registerInstanceOf(DemoInjectableOne.class, demoInjectableOne, "alias");
+		dependencyHandler.registerInstanceOf(DemoInjectableTwo.class, demoInjectableTwo, (String[]) null);
 
 		assertNotNull(dependencyHandler.getInstanceOf(DemoInjectableOne.class));
-		assertEquals(dependencyHandler.getInstanceOf(DemoInjectableOne.class), demoInjectableOne);
+		assertEquals(demoInjectableOne, dependencyHandler.getInstanceOf(DemoInjectableOne.class));
 
 		assertNotNull(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias"));
-		assertEquals(dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias"), demoInjectableOne);
+		assertEquals(demoInjectableOne, dependencyHandler.getInstanceOf(DemoInjectableOne.class, "alias"));
+
+		assertNotNull(dependencyHandler.getInstanceOf(DemoInjectableTwo.class));
+		assertEquals(demoInjectableTwo, dependencyHandler.getInstanceOf(DemoInjectableTwo.class));
+
 	}
 
 }
